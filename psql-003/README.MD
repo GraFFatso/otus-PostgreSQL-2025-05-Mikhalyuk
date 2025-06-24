@@ -119,16 +119,9 @@ include_dir '/etc/postgresql-common/createcluster.d'1
 ``
 * то создал файл, понимая, что настройки из этого файла будут переопределять настройки каждого из вновь инициализируемых кластеров ```001.conf``` (т.к. пока не знаю какие именно настройки будут там) с таким содержимым:
 
-``start_conf = 'manual'
-initdb_options = '--encoding=UTF8 \
---data-checksums \
---icu-locale=ru \
---locale-provider=icu \
---set=work_mem=200MB \
---set=log_timezone=Europe/Moscow \
---set=timezone=Europe/Moscow \
---set=listen_addresses=*'
-``
+'``start_conf = 'manual'
+initdb_options = '--encoding=UTF8 --data-checksums --icu-locale=ru --locale-provider=icu --set=work_mem=200MB --set=log_timezone=Europe/Moscow  --set=timezone=Europe/Moscow --set=listen_addresses=*'
+`'`
 
 тогда кластер инициализировался с нужными параметрами:
 
@@ -150,39 +143,44 @@ initdb_options = '--encoding=UTF8 \
 /etc/postgresql/15/main/postgresql.conf:#timezone_abbreviations = 'Default'     # Select the set of available time zone
 ```
 
+* добафил разрешение подключаться из локальной сети к СУБД
 ``echo 'host all all 192.168.70.0/24 scram-sha-256' | sudo tee -a   /etc/postgresql/15/main/pg_hba.conf``
 
 ``sudo pg_ctlcluster start 15 main``
 
+* задал пароль для пользователя СУБД postgres
 ``sudo -u postgres psql
     \password   #12345
     \q
 ``
 
-  нeвозможно подключиться из pgadmin
-  проверка возможности покдлючения
-  Test-NetConnection -ComputerName 192.168.70.12 -RemotePort 5432
-  
-   ALTER SYSTEM SET listen_addresses = '*'\gx
+*  все еще нeвозможно подключиться из pgadmin
+  проверка возможности покдлючения из powershell
+`` Test-NetConnection -ComputerName 192.168.70.12 -RemotePort 5432``
+
+* через psql внес изменения в работающий кластер
+``ALTER SYSTEM SET listen_addresses = '*'\gx``
+* перезапустил кластер командой
+``sudo pg_ctlcluster restart 15 main``
+затем успешное подключение
    
-   sudo pg_ctlcluster restart 15 main 
-   
-   затем успешное подключение
-   
-   sudo -u postgres psql
-   CRATE DATABASE otus \g
+* создал БД в кластере 15 версии
+''   sudo -u postgres psql
+   CRATE DATABASE otus \g``
    
    
-   создал БД, насоздалвал в ней объектов
+* насоздалвал в БД объектов
     sudo -u postgres pgbench -i --scale=10  --port=5432 otus
-    обновил кластер с 15 на 17 версию
-     sudo -u postgres pg_upgradecluster -v 17 15 main /var/lib/postgresql/17/upgraded --rename=upgraded_15_to_17
-     в pg_admin увидел, что версия кластера поменялась
+* обновил кластер с 15 на 17 версию командой
+``sudo -u postgres pg_upgradecluster -v 17 15 main /var/lib/postgresql/17/upgraded --rename=upgraded_15_to_17``
+
+в pg_admin увидел, что версия кластера поменялась
      
      sudo pg_ctlcluster stop 17 upgraded_15_to_17
      sudo pg_dropcluster 17 upgraded_15_to_17
      
      sudo pg_ctlcluster start 15 main 
+* 
      pg_lsclusters
      
      запустился на следующем порту 5434
