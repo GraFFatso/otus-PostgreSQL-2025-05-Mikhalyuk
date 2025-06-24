@@ -1,9 +1,10 @@
 ## Занятие 3. Установка PostgreSQL
 
-## подготовительные работы, вводные\
+## подготовительные работы, вводные
+
 использую "стенд" с hyper-v, i3-6100 +40gb RAM\
 создаю ВМ по необходимости\
-к различным хостам подключаюсь через mobaxterm\
+к различным хостам подключаюсь через mobaxterm
 
 ### Подготовтительные работы
 * для ВМ выделил 2 ядра, 8гб ОЗУ, статический MAC, чтобы не сбивался IP
@@ -11,19 +12,20 @@
 * установил ubuntu-22.05.5 live -server без GUI
 
 * забыл имя УЗ
+
 загрузился в режим recovery, увидел имя пользователя, смог влогиниваться не переустанавливая ОС
 
 * установка доп. необходимго ПО
-```sudo apt update && sudo apt upgrade```
+
+```sudo apt update && sudo apt upgrade```\
 ```sudo apt install mc openssh-server openssh-client unzip wget sysstat whiptail```
 
 команда _iostat_ в пакете _sysstat_\
 whiptail необходим для диалогов установки postgresql\
 установилось новое ядро Linux 5.15.0
 
-* далее в соответствии с методичкой, приложенной к занятию
-включен ssh, сгенерированы открытый и закрытый ключи
-
+* далее в соответствии с методичкой, приложенной к занятию\
+включен ssh, сгенерированы открытый и закрытый ключи\
 сохранил публичный ключ в файл на win машине\
 для поключения к VM ubuntu добавил ключ для подключения\
 но "не прокатило", курс не по  linux, поэтому оставил на потом
@@ -39,8 +41,8 @@ whiptail необходим для диалогов установки postgresq
 
 * добавил репозитории и ключ подписи пакетов для установки различных версий postgreSQL командами
 
-```sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list```
-```wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add```
+```sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list```\
+```wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add```\
 ```sudo apt update```
 
 _разбил на строки, чтобы мне понятнее было, что делает последовательность команд_
@@ -91,7 +93,8 @@ Processing triggers for libc-bin (2.35-0ubuntu3.10) ...
 debconf: unable to initialize frontend: Dialog
 debconf: (No usable dialog-like program is installed, so the dialog based frontend cannot be used. at /usr/share/perl5/Debconf/FrontEnd/Dialog.pm line 78.)
 
-------------------------------```
+------------------------------
+```
 
 * удалил инсталляцию
 
