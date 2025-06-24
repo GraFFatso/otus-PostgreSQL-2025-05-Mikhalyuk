@@ -151,10 +151,10 @@ initdb_options = '--encoding=UTF8 --data-checksums --icu-locale=ru --locale-prov
 
 * задал пароль для пользователя СУБД postgres
 
-``sudo -u postgres psql
-    \password   #12345
-    \q
-``
+``sudo -u postgres psql``
+``\password   #12345``
+``\q``
+
 
 *  все еще нeвозможно подключиться из pgadmin\
   проверка возможности покдлючения из powershell\
