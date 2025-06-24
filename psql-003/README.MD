@@ -143,46 +143,54 @@ initdb_options = '--encoding=UTF8 --data-checksums --icu-locale=ru --locale-prov
 /etc/postgresql/15/main/postgresql.conf:#timezone_abbreviations = 'Default'     # Select the set of available time zone
 ```
 
-* добафил разрешение подключаться из локальной сети к СУБД
+* добавил разрешение подключаться из локальной сети к СУБД
+
 ``echo 'host all all 192.168.70.0/24 scram-sha-256' | sudo tee -a   /etc/postgresql/15/main/pg_hba.conf``
 
 ``sudo pg_ctlcluster start 15 main``
 
 * задал пароль для пользователя СУБД postgres
+
 ``sudo -u postgres psql
     \password   #12345
     \q
 ``
 
-*  все еще нeвозможно подключиться из pgadmin
-  проверка возможности покдлючения из powershell
+*  все еще нeвозможно подключиться из pgadmin\
+  проверка возможности покдлючения из powershell\
 `` Test-NetConnection -ComputerName 192.168.70.12 -RemotePort 5432``
 
 * через psql внес изменения в работающий кластер
+
 ``ALTER SYSTEM SET listen_addresses = '*'\gx``
+
 * перезапустил кластер командой
-``sudo pg_ctlcluster restart 15 main``
+``sudo pg_ctlcluster restart 15 main``\
 затем успешное подключение
    
 * создал БД в кластере 15 версии
-''   sudo -u postgres psql
+``sudo -u postgres psql
    CRATE DATABASE otus \g``
-   
-   
+
 * насоздалвал в БД объектов
-    sudo -u postgres pgbench -i --scale=10  --port=5432 otus
+``sudo -u postgres pgbench -i --scale=10  --port=5432 otus``
+
 * обновил кластер с 15 на 17 версию командой
 ``sudo -u postgres pg_upgradecluster -v 17 15 main /var/lib/postgresql/17/upgraded --rename=upgraded_15_to_17``
 
-в pg_admin увидел, что версия кластера поменялась
+* в pg_admin увидел, что версия кластера поменялась
+
+* затем удалил обновленный кластер
+``sudo pg_ctlcluster stop 17 upgraded_15_to_17
+sudo pg_dropcluster 17 upgraded_15_to_17
+sudo pg_ctlcluster start 15 main ``
+
+подключение неуспешное, т.к. при обновлении для 15 main поменялдся порт с 5432 на 5434, а порт 5432 был "передан" кластеру, обновленному с 15 на 17
+
+*  номера портов зарегистрированных кластеров увидел командой
+``     pg_lsclusters``
      
-     sudo pg_ctlcluster stop 17 upgraded_15_to_17
-     sudo pg_dropcluster 17 upgraded_15_to_17
-     
-     sudo pg_ctlcluster start 15 main 
-* 
-     pg_lsclusters
-     
-     запустился на следующем порту 5434
+     в pgadmin изменил порт подключения и смог подключиться к необновленному master 15 на 5434
+
      
      
