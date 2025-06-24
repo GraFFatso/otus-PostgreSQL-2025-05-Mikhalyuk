@@ -21,7 +21,7 @@
 ```sudo apt install mc openssh-server openssh-client unzip wget sysstat whiptail```
 
 команда _iostat_ в пакете _sysstat_\
-whiptail необходим для диалогов установки postgresql\
+_whiptail_ необходим для диалогов установки postgresql\
 установилось новое ядро Linux 5.15.0
 
 * далее в соответствии с методичкой, приложенной к занятию\
@@ -104,6 +104,7 @@ debconf: (No usable dialog-like program is installed, so the dialog based fronte
 
 ```sudo apt install postgresql-15```
 
+_предупреждений никаких не было во время установки_
 при установке автоматом инициализировался кластер с настройками по-умолчанию из файла\
 ```/etc/postgresql-common/createcluster.conf```
 
@@ -113,8 +114,8 @@ debconf: (No usable dialog-like program is installed, so the dialog based fronte
 
 * т.к. в конфиг-файле есть описания, то поигрался ...
 
-```    # Directory for additional createcluster config
-    include_dir '/etc/postgresql-common/createcluster.d'
+``` Directory for additional createcluster config
+include_dir '/etc/postgresql-common/createcluster.d'
 ```
 
 ** создал файл, понимая, что настройки из этого файла будут переопределять настройки каждого из вновь инициализируемых кластеров ```001.conf``` (т.к. пока не знаю какие именно настройки будут там) с таким содержимым:
