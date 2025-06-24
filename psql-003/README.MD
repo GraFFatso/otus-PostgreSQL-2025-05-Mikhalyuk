@@ -119,9 +119,9 @@ include_dir '/etc/postgresql-common/createcluster.d'1
 ``
 * то создал файл, понимая, что настройки из этого файла будут переопределять настройки каждого из вновь инициализируемых кластеров ```001.conf``` (т.к. пока не знаю какие именно настройки будут там) с таким содержимым:
 
-'``start_conf = 'manual'
+``start_conf = 'manual'
 initdb_options = '--encoding=UTF8 --data-checksums --icu-locale=ru --locale-provider=icu --set=work_mem=200MB --set=log_timezone=Europe/Moscow  --set=timezone=Europe/Moscow --set=listen_addresses=*'
-`'`
+``
 
 тогда кластер инициализировался с нужными параметрами:
 
@@ -165,32 +165,37 @@ initdb_options = '--encoding=UTF8 --data-checksums --icu-locale=ru --locale-prov
 ``ALTER SYSTEM SET listen_addresses = '*'\gx``
 
 * перезапустил кластер командой
+
 ``sudo pg_ctlcluster restart 15 main``\
 затем успешное подключение
    
 * создал БД в кластере 15 версии
+
 ``sudo -u postgres psql
    CRATE DATABASE otus \g``
 
 * насоздалвал в БД объектов
+
 ``sudo -u postgres pgbench -i --scale=10  --port=5432 otus``
 
 * обновил кластер с 15 на 17 версию командой
+
 ``sudo -u postgres pg_upgradecluster -v 17 15 main /var/lib/postgresql/17/upgraded --rename=upgraded_15_to_17``
 
 * в pg_admin увидел, что версия кластера поменялась
 
 * затем удалил обновленный кластер
-``sudo pg_ctlcluster stop 17 upgraded_15_to_17
-sudo pg_dropcluster 17 upgraded_15_to_17
-sudo pg_ctlcluster start 15 main ``
+
+``sudo pg_ctlcluster stop 17 upgraded_15_to_17``
+``sudo pg_dropcluster 17 upgraded_15_to_17``
+``sudo pg_ctlcluster start 15 main ``
 
 подключение неуспешное, т.к. при обновлении для 15 main поменялдся порт с 5432 на 5434, а порт 5432 был "передан" кластеру, обновленному с 15 на 17
 
-*  номера портов зарегистрированных кластеров увидел командой
-``     pg_lsclusters``
+*  номера портов зарегистрированных кластеров увидел командой\
+``pg_lsclusters``
      
-     в pgadmin изменил порт подключения и смог подключиться к необновленному master 15 на 5434
+* в pgadmin изменил порт подключения и смог подключиться к необновленному master 15 на 5434
 
      
      
