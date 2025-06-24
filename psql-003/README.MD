@@ -1,11 +1,11 @@
-##Занятие 3. Установка PostgreSQL
+## Занятие 3. Установка PostgreSQL
 
-#подготовительные работы, вводные
+## подготовительные работы, вводные
 использую "стенд" с hyper-v, i3-6100 +40gb RAM
 создаю ВМ по необходимости
 к различным хостам подключаюсь через mobaxterm
 
-#текущее ДЗ
+### Подготовтительные работы
 * для ВМ выделил 2 ядра, 8гб ОЗУ, статический MAC, чтобы не сбивался IP
 
 * установил ubuntu-22.05.5 live -server без GUI
@@ -17,8 +17,10 @@
 
 команда _iostat_ в пакете _sysstat_
 whiptail необходим для диалогов установки postgresql
-_sudo apt update_
-_sudo apt upgrade_
+
+    sudo apt update
+    sudo apt upgrade
+
 установилось новое ядро Linux 5.15.0
 
 * далее в соответствии с методичкой, приложенной к занятию
@@ -29,22 +31,36 @@ _sudo apt upgrade_
 но "не прокатило", курс не по  linux, поэтому оставил на потом
 
 
+### цель занятия
+
+развернуть кластер PostgreSQL различными способами;
+понимать возможности и ограничения каждого способа;
+выбрать наиболее оптимальный способ в зависимости от задачи;
+обновить кластер на новую версию.
+
+### выполнение ДЗ
+
+
 * добавил репозитории и ключ подписи пакетов для установки различных версий postgreSQL командами
-_sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'_
-_wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add_
-_sudo apt update_
+
+   sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+   wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add
+   sudo apt update
 
 
 * поиск доступных для установки версий 
 
-_apt search postgresql-15,16,17,18_
+    apt search postgresql-15,16,17,18
+
  - пакеты доступны
 
 * установил 15 версию postgresql
-_sudo apt install postgresql-15_
+
+    sudo apt install postgresql-15
+
 во время установки увидел необходимсть установки whiptail 
 
-------------------------------
+>------------------------------
 
 Creating config file /etc/postgresql-common/createcluster.conf with new version
 Building PostgreSQL dictionaries from installed myspell/hunspell packages...
@@ -79,27 +95,34 @@ Processing triggers for libc-bin (2.35-0ubuntu3.10) ...
 debconf: unable to initialize frontend: Dialog
 debconf: (No usable dialog-like program is installed, so the dialog based frontend cannot be used. at /usr/share/perl5/Debconf/FrontEnd/Dialog.pm line 78.)
 
-------------------------------
+>------------------------------
 
 * удалил инсталляцию 
-_sudo apt remove postgresql-15_
+    
+    sudo apt remove postgresql-15
 
 * установил еще раз 15 postgreSQL
-_sudo apt install postgresql-15_
+
+    sudo apt install postgresql-15
+
 при установке автоматом инициализировался кластер с настройками по-умолчанию из файла
-/etc/postgresql-common/createcluster.conf
+
+    /etc/postgresql-common/createcluster.conf
 
 
 * установил пакеты 16 и 17, чтобы 15 main обновить до 17 версии
-sudo apt remove postgresql-16
-sudo apt remove postgresql-17
+    
+    sudo apt remove postgresql-16
+    
+    sudo apt remove postgresql-17
 
 *
 т.к.  в фокниг-файле есть описания, то поигрался ...
--# Directory for additional createcluster config
-include_dir '/etc/postgresql-common/createcluster.d'
 
-то создаю каталог, в котором размещаю файл, понимая, что настройки из этого файла будут переопределять настройки каждого из вновь инициализируемых кластеров
+    # Directory for additional createcluster config
+    include_dir '/etc/postgresql-common/createcluster.d'
+
+то создаю размещаю файл, понимая, что настройки из этого файла будут переопределять настройки каждого из вновь инициализируемых кластеров
 
 001.conf (т.к. пока не знаю какие именно настройки будут там) с таким содержимым:
 
@@ -107,30 +130,31 @@ start_conf = 'manual'
 initdb_options = '--encoding=UTF8 --data-checksums --icu-locale=ru --locale-provider=icu --set=work_mem=200MB --set=log_timezone=Europe/Moscow --set=timezone=Europe/Moscow --set=listen_addresses=*'
 
 
- тогда кластер инициализировался с нужными параметрами:
- sudo grep -R 'work_mem' /etc/postgresql/ 
- /etc/postgresql/16/first/postgresql.conf:work_mem = 200MB                       # min 64kB
- /etc/postgresql/15/main/postgresql.conf:#work_mem = 4MB                         # min 64kB
+тогда кластер инициализировался с нужными параметрами:
+
+    sudo grep -R 'work_mem' /etc/postgresql/ 
+    /etc/postgresql/16/first/postgresql.conf:work_mem = 200MB                       # min 64kB
+    /etc/postgresql/15/main/postgresql.conf:#work_mem = 4MB                         # min 64kB
  
- sudo grep -R 'listen_addresses' /etc/postgresql/ --color
- /etc/postgresql/16/first/postgresql.conf:listen_addresses = '*'                 # what IP address(es) to listen on;
- /etc/postgresql/15/main/postgresql.conf:#listen_addresses = 'localhost'         # what IP address(es) to listen on;
+    sudo grep -R 'listen_addresses' /etc/postgresql/ --color
+    /etc/postgresql/16/first/postgresql.conf:listen_addresses = '*'                 # what IP address(es) to listen on;
+    /etc/postgresql/15/main/postgresql.conf:#listen_addresses = 'localhost'         # what IP address(es) to listen on;
  
  
- sudo grep -R 'timezone' /etc/postgresql/ 
- /etc/postgresql/16/first/postgresql.conf:log_timezone = 'Europe/Moscow'
- /etc/postgresql/16/first/postgresql.conf:timezone = 'Europe/Moscow'
- /etc/postgresql/15/main/postgresql.conf:log_timezone = 'Etc/UTC'
- /etc/postgresql/15/main/postgresql.conf:timezone = 'Etc/UTC'
- /etc/postgresql/15/main/postgresql.conf:#timezone_abbreviations = 'Default'     # Select the set of available time zone
+    sudo grep -R 'timezone' /etc/postgresql/ 
+    /etc/postgresql/16/first/postgresql.conf:log_timezone = 'Europe/Moscow'
+    /etc/postgresql/16/first/postgresql.conf:timezone = 'Europe/Moscow'
+    /etc/postgresql/15/main/postgresql.conf:log_timezone = 'Etc/UTC'
+    /etc/postgresql/15/main/postgresql.conf:timezone = 'Etc/UTC'
+    /etc/postgresql/15/main/postgresql.conf:#timezone_abbreviations = 'Default'     # Select the set of available time zone
  
-  echo 'host all all 192.168.70.0/24 scram-sha-256' | sudo tee -a   /etc/postgresql/15/main/pg_hba.conf
+    echo 'host all all 192.168.70.0/24 scram-sha-256' | sudo tee -a   /etc/postgresql/15/main/pg_hba.conf
   
-  sudo pg_ctlcluster start 15 main
+    sudo pg_ctlcluster start 15 main
   
-  sudo -u postgres psql
-  \password   #12345
-  \q
+    sudo -u postgres psql
+    \password   #12345
+    \q
   
   невозможно подключиться из pgadmin
   проверка возможности покдлючения
