@@ -100,7 +100,7 @@ debconf: (No usable dialog-like program is installed, so the dialog based fronte
 
 ```sudo apt remove postgresql-15```
 
-* установил еще раз 15 postgreSQL
+* (доставил пакет whiplist) и потом установил еще раз 15 postgreSQL
 
 ```sudo apt install postgresql-15```
 
@@ -114,12 +114,12 @@ _предупреждений никаких не было во время ус�
 
 * т.к. в конфиг-файле есть описание
 
-``Directory for additional createcluster config
+``Directory for additional createcluster confiп\
 include_dir '/etc/postgresql-common/createcluster.d'1
 ``
 * то создал файл, понимая, что настройки из этого файла будут переопределять настройки каждого из вновь инициализируемых кластеров ```001.conf``` (т.к. пока не знаю какие именно настройки будут там) с таким содержимым:
 
-''start_conf = 'manual'
+``start_conf = 'manual'
 initdb_options = '--encoding=UTF8 \
 --data-checksums \
 --icu-locale=ru \
@@ -128,27 +128,27 @@ initdb_options = '--encoding=UTF8 \
 --set=log_timezone=Europe/Moscow \
 --set=timezone=Europe/Moscow \
 --set=listen_addresses=*'
-''
+``
 
 тогда кластер инициализировался с нужными параметрами:
 
 ``sudo grep -R 'work_mem' /etc/postgresql/``
-``/etc/postgresql/16/first/postgresql.conf:work_mem = 200MB                       # min 64kB
+```/etc/postgresql/16/first/postgresql.conf:work_mem = 200MB                       # min 64kB
 /etc/postgresql/15/main/postgresql.conf:#work_mem = 4MB                         # min 64kB
-``
+```
 
 ``sudo grep -R 'listen_addresses' /etc/postgresql/ --color``
-``/etc/postgresql/16/first/postgresql.conf:listen_addresses = '*'                 # what IP address(es) to listen on;
+```/etc/postgresql/16/first/postgresql.conf:listen_addresses = '*'                 # what IP address(es) to listen on;
 /etc/postgresql/15/main/postgresql.conf:#listen_addresses = 'localhost'         # what IP address(es) to listen on;
-``
+```
  
 ``sudo grep -R 'timezone' /etc/postgresql/ ``
-``/etc/postgresql/16/first/postgresql.conf:log_timezone = 'Europe/Moscow'
+```/etc/postgresql/16/first/postgresql.conf:log_timezone = 'Europe/Moscow'
 /etc/postgresql/16/first/postgresql.conf:timezone = 'Europe/Moscow'
 /etc/postgresql/15/main/postgresql.conf:log_timezone = 'Etc/UTC'
 /etc/postgresql/15/main/postgresql.conf:timezone = 'Etc/UTC'
 /etc/postgresql/15/main/postgresql.conf:#timezone_abbreviations = 'Default'     # Select the set of available time zone
-``
+```
 
 ``echo 'host all all 192.168.70.0/24 scram-sha-256' | sudo tee -a   /etc/postgresql/15/main/pg_hba.conf``
 
