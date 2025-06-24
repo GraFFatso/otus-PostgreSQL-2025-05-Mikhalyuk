@@ -13,13 +13,13 @@
 * забыл имя УЗ
 загрузился в режим recovery, увидел имя пользователя, смог влогиниваться не переустанавливая ОС
 
-* _sudo apt install mc openssh-server openssh-client unzip wget sysstat whiptail_
+* установки доп. необходимго ПО
+```sudo apt install mc openssh-server openssh-client unzip wget sysstat whiptail```
 
 команда _iostat_ в пакете _sysstat_
 whiptail необходим для диалогов установки postgresql
 
-    sudo apt update
-    sudo apt upgrade
+```sudo apt update && sudo apt upgrade```
 
 установилось новое ядро Linux 5.15.0
 
@@ -42,28 +42,23 @@ whiptail необходим для диалогов установки postgresq
 
 * добавил репозитории и ключ подписи пакетов для установки различных версий postgreSQL командами
 
-```
+```sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list```
+```wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add```
+```sudo apt update```
 
-sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
-wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add
-sudo apt update
+_разбил на строки, чтобы мне понятнее было, что делает последовательность команд_
 
-```
-
-* поиск доступных для установки версий 
-
+* поиск доступных для установки версий:
 ```apt search postgresql-15,16,17,18```
 
- - пакеты доступны
+пакеты доступны
 
 * установил 15 версию postgresql
-
-    sudo apt install postgresql-15
+'''sudo apt install postgresql-15'''
 
 во время установки увидел необходимсть установки whiptail 
 
->------------------------------
-
+```------------------------------
 Creating config file /etc/postgresql-common/createcluster.conf with new version
 Building PostgreSQL dictionaries from installed myspell/hunspell packages...
 Removing obsolete dictionary files:
@@ -97,36 +92,28 @@ Processing triggers for libc-bin (2.35-0ubuntu3.10) ...
 debconf: unable to initialize frontend: Dialog
 debconf: (No usable dialog-like program is installed, so the dialog based frontend cannot be used. at /usr/share/perl5/Debconf/FrontEnd/Dialog.pm line 78.)
 
->------------------------------
+------------------------------```
 
-* удалил инсталляцию 
-    
-    sudo apt remove postgresql-15
+* удалил инсталляцию
+```sudo apt remove postgresql-15```
 
 * установил еще раз 15 postgreSQL
-
-    sudo apt install postgresql-15
+```sudo apt install postgresql-15```
 
 при установке автоматом инициализировался кластер с настройками по-умолчанию из файла
-
-    /etc/postgresql-common/createcluster.conf
-
+```/etc/postgresql-common/createcluster.conf```
 
 * установил пакеты 16 и 17, чтобы 15 main обновить до 17 версии
-    
-    sudo apt remove postgresql-16
-    
-    sudo apt remove postgresql-17
+```sudo apt install  postgresql-16 postgresql-17```
 
-*
-т.к.  в фокниг-файле есть описания, то поигрался ...
+* т.к. в конфиг-файле есть описания, то поигрался ...
 
     # Directory for additional createcluster config
     include_dir '/etc/postgresql-common/createcluster.d'
 
-то создаю размещаю файл, понимая, что настройки из этого файла будут переопределять настройки каждого из вновь инициализируемых кластеров
+** создал файл, понимая, что настройки из этого файла будут переопределять настройки каждого из вновь инициализируемых кластеров
 
-001.conf (т.к. пока не знаю какие именно настройки будут там) с таким содержимым:
+```001.conf``` (т.к. пока не знаю какие именно настройки будут там) с таким содержимым:
 
 start_conf = 'manual'
 initdb_options = '--encoding=UTF8 --data-checksums --icu-locale=ru --locale-provider=icu --set=work_mem=200MB --set=log_timezone=Europe/Moscow --set=timezone=Europe/Moscow --set=listen_addresses=*'
@@ -134,10 +121,11 @@ initdb_options = '--encoding=UTF8 --data-checksums --icu-locale=ru --locale-prov
 
 тогда кластер инициализировался с нужными параметрами:
 
-    sudo grep -R 'work_mem' /etc/postgresql/ 
-    /etc/postgresql/16/first/postgresql.conf:work_mem = 200MB                       # min 64kB
+```sudo grep -R 'work_mem' /etc/postgresql/```
+``` /etc/postgresql/16/first/postgresql.conf:work_mem = 200MB                       # min 64kB
     /etc/postgresql/15/main/postgresql.conf:#work_mem = 4MB                         # min 64kB
- 
+```
+
     sudo grep -R 'listen_addresses' /etc/postgresql/ --color
     /etc/postgresql/16/first/postgresql.conf:listen_addresses = '*'                 # what IP address(es) to listen on;
     /etc/postgresql/15/main/postgresql.conf:#listen_addresses = 'localhost'         # what IP address(es) to listen on;
