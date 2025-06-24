@@ -1,38 +1,48 @@
-на личной машине работаю через mobaxterm для подключения к различным ОС
+##Занятие 3. Установка PostgreSQL
 
-для ВМ выделил 2 ядра, 8гб ОЗУ, статический MAC, чтобы не сбивался IP
+#подготовительные работы, вводные
+использую "стенд" с hyper-v, i3-6100 +40gb RAM
+создаю ВМ по необходимости
+к различным хостам подключаюсь через mobaxterm
 
-установил ubuntu-22.05.5 live -server без GUI
+#текущее ДЗ
+* для ВМ выделил 2 ядра, 8гб ОЗУ, статический MAC, чтобы не сбивался IP
 
-забыл имя УЗ
-загрузился в режим recovery, увидел имя пользователя
-sudo apt install mc openssh-server openssh-client unzip wget sysstat whiptail
+* установил ubuntu-22.05.5 live -server без GUI
 
-команда iostat в пакете sysstat 
+* забыл имя УЗ
+загрузился в режим recovery, увидел имя пользователя, смог влогиниваться не переустанавливая ОС
+
+* _sudo apt install mc openssh-server openssh-client unzip wget sysstat whiptail_
+
+команда _iostat_ в пакете _sysstat_
 whiptail необходим для диалогов установки postgresql
-sudo apt update
-sudo apt upgrade
+_sudo apt update_
+_sudo apt upgrade_
 установилось новое ядро Linux 5.15.0
 
-далее в соответствии с методичкой, приложенной к занятию
+* далее в соответствии с методичкой, приложенной к занятию
 включен ssh, сгенерированы открытый и закрытый ключи
-
 
 сохранил публичный ключ в файл на win машине
 для поключения к VM ubuntu добавил ключ для подключения 
-но не прокатило, курс не по  linux, поэтому оставил на потом
-
-sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
-wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add 
-sudo apt update
+но "не прокатило", курс не по  linux, поэтому оставил на потом
 
 
-поиск доступных для установки версий 
+* добавил репозитории и ключ подписи пакетов для установки различных версий postgreSQL командами
+_sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'_
+_wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add_
+_sudo apt update_
 
-apt search postgresql15,16,17,18 - пакеты доступны
 
-sudo apt install postgresql-15
+* поиск доступных для установки версий 
 
+_apt search postgresql-15,16,17,18_
+ - пакеты доступны
+
+* установил 15 версию postgresql
+_sudo apt install postgresql-15_
+во время установки увидел необходимсть установки whiptail 
 
 ------------------------------
 
@@ -71,19 +81,22 @@ debconf: (No usable dialog-like program is installed, so the dialog based fronte
 
 ------------------------------
 
-удалил инсталляцию 
-sudo apt remove postgresql-15
+* удалил инсталляцию 
+_sudo apt remove postgresql-15_
+
+* установил еще раз 15 postgreSQL
+_sudo apt install postgresql-15_
 при установке автоматом инициализировался кластер с настройками по-умолчанию из файла
 /etc/postgresql-common/createcluster.conf
 
-затем установка прошла без предупреждений
-и установил пакеты 16 и 17, чтобы 15 main обновить до 17 версии
+
+* установил пакеты 16 и 17, чтобы 15 main обновить до 17 версии
 sudo apt remove postgresql-16
 sudo apt remove postgresql-17
 
-
-т.к. 
-# Directory for additional createcluster config
+*
+т.к.  в фокниг-файле есть описания, то поигрался ...
+-# Directory for additional createcluster config
 include_dir '/etc/postgresql-common/createcluster.d'
 
 то создаю каталог, в котором размещаю файл, понимая, что настройки из этого файла будут переопределять настройки каждого из вновь инициализируемых кластеров
