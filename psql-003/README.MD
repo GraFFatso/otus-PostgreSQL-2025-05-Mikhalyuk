@@ -114,43 +114,50 @@ _предупреждений никаких не было во время ус�
 
 * т.к. в конфиг-файле есть описание
 
-```Directory for additional createcluster config
-include_dir '/etc/postgresql-common/createcluster.d'
-```
-    * то создал файл, понимая, что настройки из этого файла будут переопределять настройки каждого из вновь инициализируемых кластеров ```001.conf``` (т.к. пока не знаю какие именно настройки будут там) с таким содержимым:
+``Directory for additional createcluster config
+include_dir '/etc/postgresql-common/createcluster.d'1
+``
+* то создал файл, понимая, что настройки из этого файла будут переопределять настройки каждого из вновь инициализируемых кластеров ```001.conf``` (т.к. пока не знаю какие именно настройки будут там) с таким содержимым:
 
-'''start_conf = 'manual'
-initdb_options = '--encoding=UTF8 --data-checksums --icu-locale=ru --locale-provider=icu --set=work_mem=200MB --set=log_timezone=Europe/Moscow --set=timezone=Europe/Moscow --set=listen_addresses=*'
-'''
+''start_conf = 'manual'
+initdb_options = '--encoding=UTF8 \
+--data-checksums \
+--icu-locale=ru \
+--locale-provider=icu \
+--set=work_mem=200MB \
+--set=log_timezone=Europe/Moscow \
+--set=timezone=Europe/Moscow \
+--set=listen_addresses=*'
+''
 
 тогда кластер инициализировался с нужными параметрами:
 
-```sudo grep -R 'work_mem' /etc/postgresql/```
-```/etc/postgresql/16/first/postgresql.conf:work_mem = 200MB                       # min 64kB
+``sudo grep -R 'work_mem' /etc/postgresql/``
+``/etc/postgresql/16/first/postgresql.conf:work_mem = 200MB                       # min 64kB
 /etc/postgresql/15/main/postgresql.conf:#work_mem = 4MB                         # min 64kB
-```
+``
 
-```sudo grep -R 'listen_addresses' /etc/postgresql/ --color```
-```/etc/postgresql/16/first/postgresql.conf:listen_addresses = '*'                 # what IP address(es) to listen on;
+``sudo grep -R 'listen_addresses' /etc/postgresql/ --color``
+``/etc/postgresql/16/first/postgresql.conf:listen_addresses = '*'                 # what IP address(es) to listen on;
 /etc/postgresql/15/main/postgresql.conf:#listen_addresses = 'localhost'         # what IP address(es) to listen on;
-```
+``
  
-```sudo grep -R 'timezone' /etc/postgresql/ ```
-```/etc/postgresql/16/first/postgresql.conf:log_timezone = 'Europe/Moscow'
+``sudo grep -R 'timezone' /etc/postgresql/ ``
+``/etc/postgresql/16/first/postgresql.conf:log_timezone = 'Europe/Moscow'
 /etc/postgresql/16/first/postgresql.conf:timezone = 'Europe/Moscow'
 /etc/postgresql/15/main/postgresql.conf:log_timezone = 'Etc/UTC'
 /etc/postgresql/15/main/postgresql.conf:timezone = 'Etc/UTC'
 /etc/postgresql/15/main/postgresql.conf:#timezone_abbreviations = 'Default'     # Select the set of available time zone
-```
+``
 
-```echo 'host all all 192.168.70.0/24 scram-sha-256' | sudo tee -a   /etc/postgresql/15/main/pg_hba.conf```
+``echo 'host all all 192.168.70.0/24 scram-sha-256' | sudo tee -a   /etc/postgresql/15/main/pg_hba.conf``
 
-```sudo pg_ctlcluster start 15 main```
-  
-```sudo -u postgres psql
+``sudo pg_ctlcluster start 15 main``
+
+``sudo -u postgres psql
     \password   #12345
     \q
-```
+``
 
   нeвозможно подключиться из pgadmin
   проверка возможности покдлючения
