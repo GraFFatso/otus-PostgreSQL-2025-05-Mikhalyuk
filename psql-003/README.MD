@@ -39,7 +39,7 @@ whiptail необходим для диалогов установки postgresq
 
 ### Выполнение ДЗ
 
-* добавил репозитории и ключ подписи пакетов для установки различных версий postgreSQL командами
+* добавил репозиторий и ключ подписи пакетов для установки различных версий postgreSQL командами
 
 ```sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list```\
 ```wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add```\
@@ -55,9 +55,9 @@ _разбил на строки, чтобы мне понятнее было, ч
 
 * установил 15 версию postgresql
 
-'''sudo apt install postgresql-15'''
+```sudo apt install postgresql-15```
 
-во время установки увидел необходимсть установки whiptail 
+во время установки увидел необходимсть установки _whiptail_
 
 ```------------------------------
 Creating config file /etc/postgresql-common/createcluster.conf with new version
@@ -114,11 +114,10 @@ debconf: (No usable dialog-like program is installed, so the dialog based fronte
 * т.к. в конфиг-файле есть описания, то поигрался ...
 
 ```    # Directory for additional createcluster config
-    include_dir '/etc/postgresql-common/createcluster.d'```
+    include_dir '/etc/postgresql-common/createcluster.d'
+```
 
-** создал файл, понимая, что настройки из этого файла будут переопределять настройки каждого из вновь инициализируемых кластеров
-
-```001.conf``` (т.к. пока не знаю какие именно настройки будут там) с таким содержимым:
+** создал файл, понимая, что настройки из этого файла будут переопределять настройки каждого из вновь инициализируемых кластеров ```001.conf``` (т.к. пока не знаю какие именно настройки будут там) с таким содержимым:
 
 '''start_conf = 'manual'
 initdb_options = '--encoding=UTF8 --data-checksums --icu-locale=ru --locale-provider=icu --set=work_mem=200MB --set=log_timezone=Europe/Moscow --set=timezone=Europe/Moscow --set=listen_addresses=*'
@@ -127,31 +126,33 @@ initdb_options = '--encoding=UTF8 --data-checksums --icu-locale=ru --locale-prov
 тогда кластер инициализировался с нужными параметрами:
 
 ```sudo grep -R 'work_mem' /etc/postgresql/```
-``` /etc/postgresql/16/first/postgresql.conf:work_mem = 200MB                       # min 64kB
-    /etc/postgresql/15/main/postgresql.conf:#work_mem = 4MB                         # min 64kB
+```/etc/postgresql/16/first/postgresql.conf:work_mem = 200MB                       # min 64kB
+/etc/postgresql/15/main/postgresql.conf:#work_mem = 4MB                         # min 64kB
 ```
 
-    sudo grep -R 'listen_addresses' /etc/postgresql/ --color
-    /etc/postgresql/16/first/postgresql.conf:listen_addresses = '*'                 # what IP address(es) to listen on;
-    /etc/postgresql/15/main/postgresql.conf:#listen_addresses = 'localhost'         # what IP address(es) to listen on;
+```sudo grep -R 'listen_addresses' /etc/postgresql/ --color```
+```/etc/postgresql/16/first/postgresql.conf:listen_addresses = '*'                 # what IP address(es) to listen on;
+/etc/postgresql/15/main/postgresql.conf:#listen_addresses = 'localhost'         # what IP address(es) to listen on;
+```
  
- 
-    sudo grep -R 'timezone' /etc/postgresql/ 
-    /etc/postgresql/16/first/postgresql.conf:log_timezone = 'Europe/Moscow'
-    /etc/postgresql/16/first/postgresql.conf:timezone = 'Europe/Moscow'
-    /etc/postgresql/15/main/postgresql.conf:log_timezone = 'Etc/UTC'
-    /etc/postgresql/15/main/postgresql.conf:timezone = 'Etc/UTC'
-    /etc/postgresql/15/main/postgresql.conf:#timezone_abbreviations = 'Default'     # Select the set of available time zone
- 
-    echo 'host all all 192.168.70.0/24 scram-sha-256' | sudo tee -a   /etc/postgresql/15/main/pg_hba.conf
+```sudo grep -R 'timezone' /etc/postgresql/ ```
+```/etc/postgresql/16/first/postgresql.conf:log_timezone = 'Europe/Moscow'
+/etc/postgresql/16/first/postgresql.conf:timezone = 'Europe/Moscow'
+/etc/postgresql/15/main/postgresql.conf:log_timezone = 'Etc/UTC'
+/etc/postgresql/15/main/postgresql.conf:timezone = 'Etc/UTC'
+/etc/postgresql/15/main/postgresql.conf:#timezone_abbreviations = 'Default'     # Select the set of available time zone
+```
+
+```echo 'host all all 192.168.70.0/24 scram-sha-256' | sudo tee -a   /etc/postgresql/15/main/pg_hba.conf```
+
+```sudo pg_ctlcluster start 15 main```
   
-    sudo pg_ctlcluster start 15 main
-  
-    sudo -u postgres psql
+```sudo -u postgres psql
     \password   #12345
     \q
-  
-  невозможно подключиться из pgadmin
+```
+
+  нeвозможно подключиться из pgadmin
   проверка возможности покдлючения
   Test-NetConnection -ComputerName 192.168.70.12 -RemotePort 5432
   
