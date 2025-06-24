@@ -31,26 +31,28 @@ whiptail необходим для диалогов установки postgresq
 но "не прокатило", курс не по  linux, поэтому оставил на потом
 
 
-### цель занятия
+### Цель занятия
 
 развернуть кластер PostgreSQL различными способами;
 понимать возможности и ограничения каждого способа;
 выбрать наиболее оптимальный способ в зависимости от задачи;
 обновить кластер на новую версию.
 
-### выполнение ДЗ
-
+### Выполнение ДЗ
 
 * добавил репозитории и ключ подписи пакетов для установки различных версий postgreSQL командами
 
-   sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
-   wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add
-   sudo apt update
+```
 
+sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add
+sudo apt update
+
+```
 
 * поиск доступных для установки версий 
 
-    apt search postgresql-15,16,17,18
+```apt search postgresql-15,16,17,18```
 
  - пакеты доступны
 
