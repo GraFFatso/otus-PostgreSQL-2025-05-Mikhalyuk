@@ -32,7 +32,8 @@ _whiptail_ необходим для диалогов установки postgre
 ```
 демон остановлен и отключен
 
-```systemctl disable postgrespro-1c-14
+```
+systemctl disable postgrespro-1c-14
 systemctl stop postgrespro-1c-14
 ```
 
@@ -52,9 +53,16 @@ systemctl stop postgrespro-1c-14
 
 ### Выполнение ДЗ
 
+*из предудущего ДЗ используется ubuntu, кластер 15 версии
 
-     оздал БД в кластере 15 версии
-     sudo -u postgres psql CRATE DATABASE otus \g
-     
-     насоздалвал в БД объектов
-     sudo -u postgres pgbench -i --scale=10  --port=5432 otus
+* остановил кластер
+```
+sudo pg_ctlcluster 15 main stop
+sudo pg_ctlcluster 16 first stop
+```
+* остановлен контейнер docker и служба docker, т.к. на этом ДЗ не нужна
+```
+sudo docker stop 
+sudo systemctl docker stop
+sudo systemctl docker disable
+```
