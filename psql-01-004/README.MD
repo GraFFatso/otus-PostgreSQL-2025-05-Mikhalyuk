@@ -147,7 +147,7 @@ sda
 
 ```
 
-* т.к. существующие каталоги кластеров располагаются в директории /var/lib/postgresql
+* т.к. существующие каталоги кластеров располагаются в директории _/var/lib/postgresql_,\
 то создаю новую директорию и в fstab прописываю путь мониторования к этой директории
 
 ```
@@ -177,7 +177,33 @@ sda1                  ext4        1.0            2fcb8a2d-12f4-4e4c-b822-893909f
  * назначил владельцем каталога рекурскивно пользователя postgres
  
 ` sudo chown postgres:postgres -R /var/lib/pg_ext_10/`
- 
- 
- 
+
+* запустив кластер 15 main узнал путь к конфиг файлу этого кластера, затем остановил кластер
+```
+ps aux | grep 'post'
+postgres     901  0.0  0.3 216732 30000 ?        Ss   12:25   0:00 /usr/lib/postgresql/15/bin/postgres -D /var/lib/postgresql/15/main -c config_file=/etc/postgresql/15/main/postgresql.conf
+```
+
+* командой выяснил как выглядит строка, в которой необходимо измеить путь к каталогу кластера
+```
+sudo grep -R '/var/lib/' /etc/postgresql/15/ --color
+/etc/postgresql/15/main/postgresql.conf:data_directory = '/var/lib/postgresql/15/main'          # use data in another directory
+```
+
+* командой изменил путь к каталогу кластера СУБД 15 main
+'''
+sudo sed -i.bak 's/var\/lib\/postgresql\/15\/main/var\/lib\/pg_ext_10/g' /etc/postgresql/15/main/postgresql.conf
+'''
+
+* ошибся, указав не полный путь к каталогу кластера, изменил занчение командой, заменив / на #, чтобы не заниматься экранированием слэша
+
+sudo sed -i.bak2 's#var/lib/pg_ext_10#var/lib/pg_ext_10/15/main#g' /etc/postgresql/15/main/postgresql.conf
+
+
+* успешное подключение командой 
+
+`sudo -u postgres psql -p 5434`
+
+
+
 
