@@ -234,11 +234,11 @@ Ver Cluster Port Status Owner    Data directory               Log file
 * реализовал таким образом, чтобы внутри контейнера использовался такой же номер порта, который хадействован на одном из кластеров, но маппинг портов из контейнера в хост на другой порт, таким образом могут работать все три кластера(два на хосте и один в контейнере)
 
 ``sudo docker ps -a``
-``CONTAINER ID   IMAGE         COMMAND                  CREATED       STATUS                   PORTS                                         NAMES
+```CONTAINER ID   IMAGE         COMMAND                  CREATED       STATUS                   PORTS                                         NAMES
  58c244557bfb   postgres:15   "docker-entrypoint.s…"   2 hours ago   Up 3 minutes             0.0.0.0:5441->5432/tcp, [::]:5441->5432/tcp   pg-server
  3e75f399a18a   hello-world   "/hello"                 2 hours ago   Exited (0) 2 hours ago                                                 laughing_tu
-``
-``netstat -ntlp
+```
+```netstat -ntlp
  (Not all processes could be identified, non-owned process info
   will not be shown, you would have to be root to see it all.)
   Active Internet connections (only servers)
@@ -250,11 +250,11 @@ Ver Cluster Port Status Owner    Data directory               Log file
   tcp6       0      0 :::5441                 :::*                    LISTEN      -
   tcp6       0      0 :::22                   :::*                    LISTEN      -
   tcp6       0      0 ::1:6010                :::*                    LISTEN      -
-``
+```
 
 ``sudo docker inspect  58c244557bfb``
 
-`` ...
+``` ...
     "Ports": {
             "5432/tcp": [
             {
@@ -267,5 +267,5 @@ Ver Cluster Port Status Owner    Data directory               Log file
             }
             ]
             },
-...``
+...```
                в pgadmin изменил порт, смог подключиться к кластеру, увидел созданную БД
