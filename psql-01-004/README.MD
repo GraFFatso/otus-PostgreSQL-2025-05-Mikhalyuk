@@ -184,21 +184,21 @@ ps aux | grep 'post'
 postgres     901  0.0  0.3 216732 30000 ?        Ss   12:25   0:00 /usr/lib/postgresql/15/bin/postgres -D /var/lib/postgresql/15/main -c config_file=/etc/postgresql/15/main/postgresql.conf
 ```
 
-* командой выяснил как выглядит строка, в которой необходимо измеить путь к каталогу кластера
+* командой выяснил как выглядит строка, в которой необходимо изменить путь к каталогу кластера
 ```
 sudo grep -R '/var/lib/' /etc/postgresql/15/ --color
 /etc/postgresql/15/main/postgresql.conf:data_directory = '/var/lib/postgresql/15/main'          # use data in another directory
 ```
 
 * командой изменил путь к каталогу кластера СУБД 15 main
-'''
+```
 sudo sed -i.bak 's/var\/lib\/postgresql\/15\/main/var\/lib\/pg_ext_10/g' /etc/postgresql/15/main/postgresql.conf
-'''
+```
 
 * ошибся, указав не полный путь к каталогу кластера, изменил занчение командой, заменив / на #, чтобы не заниматься экранированием слэша
-
+```
 sudo sed -i.bak2 's#var/lib/pg_ext_10#var/lib/pg_ext_10/15/main#g' /etc/postgresql/15/main/postgresql.conf
-
+```
 
 * успешное подключение командой 
 
