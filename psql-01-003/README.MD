@@ -207,20 +207,20 @@ https://docs.docker.com/engine/install/ubuntu/
 
 ``sudo docker network create pg-net``
 
-* командой скачались необходимые пакеты
+* командой скачались необходимые пакеты и создался контейнер с необходимыми параметрами
 
-''sudo docker run --name pg-server --network pg-net -e POSTGRES_PASSWORD=postgres -d -p 5432:5432 -v /var/lib/postgres:/var/lib/postgresql/data postgres:15''
+``sudo docker run --name pg-server --network pg-net -e POSTGRES_PASSWORD=postgres -d -p 5432:5432 -v /var/lib/postgres:/var/lib/postgresql/data postgres:15``
 
-> в предыдущих итерациях ДЗ пароль для УЗ был другой
+> в предыдущих итерациях ДЗ пароль для УЗ был другой\
 > путь к каталогу в команде /var/lib/postgresql/data, был /var/lib/postgresql/<version>/<cluster_name>
 
 
 т.к. имеющиеся кластеры работают не на 5432, то СУБД запустилась и работает на порту 5432
-``pg_lsclusters
+```pg_lsclusters
 Ver Cluster Port Status Owner    Data directory               Log file
 15  main    5434 down   postgres /var/lib/postgresql/15/main  /var/log/postgresql/postgresql-15-main.log
 16  first   5433 down   postgres /var/lib/postgresql/16/first /var/log/postgresql/postgresql-16-first.log
-``
+```
 * в СУБД контейнера создал БД, с именем отличным от ранее созданной
 ``sudo docker exec -it pg-server bash``
 
