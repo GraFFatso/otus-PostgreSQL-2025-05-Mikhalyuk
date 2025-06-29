@@ -197,5 +197,75 @@ initdb_options = '--encoding=UTF8 --data-checksums --icu-locale=ru --locale-prov
      
 * в pgadmin изменил порт подключения и смог подключиться к необновленному master 15 на 5434
 
-     
-     
+
+---------------------------------------------------------------------------------------------------------------
+
+* по инструкции
+https://docs.docker.com/engine/install/ubuntu/
+
+* добавил репозиторий docker, установил необходимые пакеты, создал сеть для docker командой
+
+``sudo docker network create pg-net``
+
+* командой скачались необходимые пакеты
+
+''sudo docker run --name pg-server --network pg-net -e POSTGRES_PASSWORD=postgres -d -p 5432:5432 -v /var/lib/postgres:/var/lib/postgresql/data postgres:15''
+
+> в предыдущих итерациях ДЗ пароль для УЗ был другой
+> путь к каталогу в команде /var/lib/postgresql/data, был /var/lib/postgresql/<version>/<cluster_name>
+
+
+т.к. имеющиеся кластеры работают не на 5432, то СУБД запустилась и работает на порту 5432
+``pg_lsclusters
+Ver Cluster Port Status Owner    Data directory               Log file
+15  main    5434 down   postgres /var/lib/postgresql/15/main  /var/log/postgresql/postgresql-15-main.log
+16  first   5433 down   postgres /var/lib/postgresql/16/first /var/log/postgresql/postgresql-16-first.log
+``
+* в СУБД контейнера создал БД, с именем отличным от ранее созданной
+``sudo docker exec -it pg-server bash``
+
+``CREATE DATABASE otus23 \gx``
+
+* к кластеру возможно подключиться командой 
+`` psql -p 5432 -h 127.0.0.1 -U postgres``
+ увидел созданную БД
+
+* остановил контейнер, нашел в каталоге /var/lib/docker/containers/... каталог контейнера кластера, изменил номера портов, чтобы понимать, который из параметров, за что отвечает.
+* реализовал таким образом, чтобы внутри контейнера использовался такой же номер порта, который хадействован на одном из кластеров, но маппинг портов из контейнера в хост на другой порт, таким образом могут работать все три кластера(два на хосте и один в контейнере)
+
+``sudo docker ps -a``
+``CONTAINER ID   IMAGE         COMMAND                  CREATED       STATUS                   PORTS                                         NAMES
+ 58c244557bfb   postgres:15   "docker-entrypoint.s…"   2 hours ago   Up 3 minutes             0.0.0.0:5441->5432/tcp, [::]:5441->5432/tcp   pg-server
+ 3e75f399a18a   hello-world   "/hello"                 2 hours ago   Exited (0) 2 hours ago                                                 laughing_tu
+``
+``netstat -ntlp
+ (Not all processes could be identified, non-owned process info
+  will not be shown, you would have to be root to see it all.)
+  Active Internet connections (only servers)
+  Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
+  tcp        0      0 0.0.0.0:5441            0.0.0.0:*               LISTEN      -
+  tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      -
+  tcp        0      0 127.0.0.1:6010          0.0.0.0:*               LISTEN      -
+  tcp        0      0 127.0.0.53:53           0.0.0.0:*               LISTEN      -
+  tcp6       0      0 :::5441                 :::*                    LISTEN      -
+  tcp6       0      0 :::22                   :::*                    LISTEN      -
+  tcp6       0      0 ::1:6010                :::*                    LISTEN      -
+``
+
+``sudo docker inspect  58c244557bfb``
+
+`` ...
+    "Ports": {
+            "5432/tcp": [
+            {
+            "HostIp": "0.0.0.0",
+            "HostPort": "5441"
+            },
+            {
+            "HostIp": "::",
+            "HostPort": "5441"
+            }
+            ]
+            },
+...``
+               в pgadmin изменил порт, смог подключиться к кластеру, увидел созданную БД
