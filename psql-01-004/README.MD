@@ -55,6 +55,32 @@ systemctl stop postgrespro-1c-14
 
 *из предудущего ДЗ используется ubuntu, кластер 15 версии
 
+* т.к. кластер 15 версии работает на нестандартном порту, то подключаться к СУБД командой
+```
+sudo -u postgres psql -p 5434
+```
+создал еще одну БД (номер месяца+номерДЗ)
+``
+CREATE DATABASE otus01004\gx
+``
+*переключился на созданную БД и создал таблицу
+```
+\c otus01004 \gx
+otus01004=# CREATE TABLE some_talbe (some_columnt text)\gx
+CREATE TABLE
+otus01004
+otus01004=# \d+
+List of relations
+Schema |    Name    | Type  |  Owner   | Persistence | Access method |    Size    | Description
+--------+------------+-------+----------+-------------+---------------+------------+-------------
+public | some_talbe | table | postgres | permanent   | heap          | 8192 bytes |
+                                   (1 row)
+otus01004=# INSERT  INTO some_talbe VALUES ('firts_text')\gx
+INSERT 0 1
+otus01004=# SELECT * FROM some_talbe \gx
+-[ RECORD 1 ]+-----------
+some_columnt | firts_text
+```
 * остановил кластер
 ```
 sudo pg_ctlcluster 15 main stop
@@ -66,3 +92,4 @@ sudo docker stop
 sudo systemctl docker stop
 sudo systemctl docker disable
 ```
+* выключена ВМ ubuntu
