@@ -67,8 +67,6 @@ CREATE DATABASE otus01004\gx
 ```
 \c otus01004 \gx
 otus01004=# CREATE TABLE some_talbe (some_columnt text)\gx
-CREATE TABLE
-otus01004
 otus01004=# \d+
 List of relations
 Schema |    Name    | Type  |  Owner   | Persistence | Access method |    Size    | Description
@@ -93,3 +91,28 @@ sudo systemctl docker stop
 sudo systemctl docker disable
 ```
 * выключена ВМ ubuntu
+* добавлен диск размером 10ГБ на HDD
+* включена ВМ, проверка наличия диска
+```
+lsblk
+NAME                      MAJ:MIN RM  SIZE RO TYPE MOUNTPOINTS
+fd0                         2:0    1    4K  0 disk
+sda                         8:0    0   10G  0 disk
+sdb                         8:16   0  127G  0 disk
+├─sdb1                      8:17   0    1M  0 part
+├─sdb2                      8:18   0    2G  0 part /boot
+└─sdb3                      8:19   0  125G  0 part
+  └─ubuntu--vg-ubuntu--lv 253:0    0 62.5G  0 lvm  /
+```
+> блочное устройытво sda размером 10ГБ существует
+```
+sudo fdisk /dev/sda
+```
+n - создать новый раздел\
+p - первичный раздел\
+w - записать изменения и выйти из утилиты
+
+```
+sudo mkfs /dev/sda1
+```
+
