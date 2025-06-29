@@ -238,6 +238,7 @@ Ver Cluster Port Status Owner    Data directory               Log file
  58c244557bfb   postgres:15   "docker-entrypoint.s…"   2 hours ago   Up 3 minutes             0.0.0.0:5441->5432/tcp, [::]:5441->5432/tcp   pg-server
  3e75f399a18a   hello-world   "/hello"                 2 hours ago   Exited (0) 2 hours ago                                                 laughing_tu
 ```
+
 ```netstat -ntlp
 (Not all processes could be identified, non-owned process info
  will not be shown, you would have to be root to see it all.)
