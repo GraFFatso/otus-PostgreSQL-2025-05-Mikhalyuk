@@ -239,17 +239,21 @@ Ver Cluster Port Status Owner    Data directory               Log file
  3e75f399a18a   hello-world   "/hello"                 2 hours ago   Exited (0) 2 hours ago                                                 laughing_tu
 ```
 ```netstat -ntlp
- (Not all processes could be identified, non-owned process info
-  will not be shown, you would have to be root to see it all.)
-  Active Internet connections (only servers)
-  Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
-  tcp        0      0 0.0.0.0:5441            0.0.0.0:*               LISTEN      -
-  tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      -
-  tcp        0      0 127.0.0.1:6010          0.0.0.0:*               LISTEN      -
-  tcp        0      0 127.0.0.53:53           0.0.0.0:*               LISTEN      -
-  tcp6       0      0 :::5441                 :::*                    LISTEN      -
-  tcp6       0      0 :::22                   :::*                    LISTEN      -
-  tcp6       0      0 ::1:6010                :::*                    LISTEN      -
+(Not all processes could be identified, non-owned process info
+ will not be shown, you would have to be root to see it all.)
+ Active Internet connections (only servers)
+ Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
+ tcp        0      0 0.0.0.0:5434            0.0.0.0:*               LISTEN      -
+ tcp        0      0 0.0.0.0:5432            0.0.0.0:*               LISTEN      -
+ tcp        0      0 0.0.0.0:5441            0.0.0.0:*               LISTEN      -
+ tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      -
+ tcp        0      0 127.0.0.1:6010          0.0.0.0:*               LISTEN      -
+ tcp        0      0 127.0.0.53:53           0.0.0.0:*               LISTEN      -
+ tcp6       0      0 :::5434                 :::*                    LISTEN      -
+ tcp6       0      0 :::5432                 :::*                    LISTEN      -
+ tcp6       0      0 :::5441                 :::*                    LISTEN      -
+ tcp6       0      0 :::22                   :::*                    LISTEN      -
+ tcp6       0      0 ::1:6010                :::*                    LISTEN      -
 ```
 
 ``sudo docker inspect  58c244557bfb``
