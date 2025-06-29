@@ -217,9 +217,13 @@ sudo sed -i.bak2 's#var/lib/pg_ext_10#var/lib/pg_ext_10/15/main#g' /etc/postgres
 
 sudo -u postgres /usr/pgsql-15/bin/initdb -D /var/lib/pgsql/15/data/
 
+удалил содерджимое проинициализировавшегося каталога
+rm -rf /var/lib/pgsql/15/data/*
+
 
 в ВМ ubuntu в файле /etc/fstab закомментировал строку монтирования диска, выклчюил ВМ ubuntu, отключил диск от ВМ
 ВМ centos выключил, подключил диск с кластером postgresql 15, включил ВМ
+
 
 
 
