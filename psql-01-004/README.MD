@@ -200,10 +200,10 @@ sudo sed -i.bak 's/var\/lib\/postgresql\/15\/main/var\/lib\/pg_ext_10/g' /etc/po
 sudo sed -i.bak2 's#var/lib/pg_ext_10#var/lib/pg_ext_10/15/main#g' /etc/postgresql/15/main/postgresql.conf
 ```
 
-* успешное подключение командой 
+* успешное подключение командой и отображение созданной БД и записи...
 
 `sudo -u postgres psql -p 5434`
 
-
-
-
+`\l`
+`\c otus01004`
+`\d`
