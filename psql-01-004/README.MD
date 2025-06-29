@@ -105,6 +105,8 @@ sdb                         8:16   0  127G  0 disk
   └─ubuntu--vg-ubuntu--lv 253:0    0 62.5G  0 lvm  /
 ```
 > блочное устройытво sda размером 10ГБ существует
+
+* создание первисчного раздела 
 ```
 sudo fdisk /dev/sda
 ```
@@ -112,7 +114,70 @@ n - создать новый раздел\
 p - первичный раздел\
 w - записать изменения и выйти из утилиты
 
+* форматирование созданного раздела
 ```
 sudo mkfs /dev/sda1
 ```
+* при поиске UID раздела увидел, что отформатировался раздел в ext2, желательно ext4
+```
+lsblk -o NAME,FSTYPE,LABEL,UUID,MOUNTPOINT
+NAME                      FSTYPE      LABEL UUID                                   MOUNTPOINT
+fd0
+sda
+└─sda1                    ext2              4f398715-5717-4264-84ff-170e8c6dbc83
+sdb
+├─sdb1
+├─sdb2                    ext4              24a2333e-4d26-4c75-9bd1-8054e820bcf2   /boot
+└─sdb3                    LVM2_member       eKCLNI-h3PL-kpwC-K51x-k8MJ-vYqs-v7Sxxw
+  └─ubuntu--vg-ubuntu--lv ext4              16200388-af5e-4392-a83d-e67ef50fc83f   /
+```
+* отформатировал в нужную файловую систему
+```
+sudo mkfs.ext4 /dev/sda1
+```
+
+тогда у раздела получился другой UID
+
+```
+lsblk -o NAME,FSTYPE,LABEL,UUID,MOUNTPOINT
+NAME                      FSTYPE      LABEL UUID                                   MOUNTPOINT
+fd0
+sda
+└─sda1                    ext4              2fcb8a2d-12f4-4e4c-b822-893909f953ab
+
+```
+
+* т.к. существующие каталоги кластеров располагаются в директории /var/lib/postgresql
+то создаю новую директорию и в fstab прописываю путь мониторования к этой директории
+
+```
+sudo mkdir /var/lib/pg_ext_10
+```
+
+* в /etc/fstab добавил строку
+```
+LABEL=PGSQL_ext_part /var/lib/pg_ext_10 ext4 defaults 0 2
+```
+> ошибка, т.к. я LABEL не задал для раздела, тогда в mainetance режиме закомментировал строку мониторвоания и перезагрузившись в нормальном режиме задал верную строку монтирования раздела
+
+```
+UUID=2fcb8a2d-12f4-4e4c-b822-893909f953ab /var/lib/pg_ext_10 ext4 defaults 0 2
+```
+
+* после перезагрузки
+```
+lsblk -fs
+NAME                  FSTYPE      FSVER    LABEL UUID                                   FSAVAIL FSUSE% MOUNTPOINTS
+fd0
+sda1                  ext4        1.0            2fcb8a2d-12f4-4e4c-b822-893909f953ab      9.2G     0% /var/lib/pg_ext_10
+```
+* скопировал каталог 15 версии кластер main
+` sudo cp /var/lib/postgresql/15 /var/lib/pg_ext_10/`
+ 
+ * назначил владельцем каталога рекурскивно пользователя postgres
+ 
+` sudo chown postgres:postgres -R /var/lib/pg_ext_10/`
+ 
+ 
+ 
 
