@@ -206,6 +206,7 @@ https://docs.docker.com/engine/install/ubuntu/
 * добавил репозиторий docker, установил необходимые пакеты, создал сеть для docker командой
 
 ``sudo docker network create pg-net``
+> доустановил пакет net-tools, т.к. необходима была утилита netstat
 
 * командой скачались необходимые пакеты и создался контейнер с необходимыми параметрами
 
@@ -239,8 +240,8 @@ Ver Cluster Port Status Owner    Data directory               Log file
  3e75f399a18a   hello-world   "/hello"                 2 hours ago   Exited (0) 2 hours ago                                                 laughing_tu
 ```
 
-```netstat -ntlp
-(Not all processes could be identified, non-owned process info
+``netstat -ntlp``
+```(Not all processes could be identified, non-owned process info
  will not be shown, you would have to be root to see it all.)
  Active Internet connections (only servers)
  Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
