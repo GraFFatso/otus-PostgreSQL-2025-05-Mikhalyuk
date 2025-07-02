@@ -212,17 +212,56 @@ sudo sed -i.bak2 's#var/lib/pg_ext_10#var/lib/pg_ext_10/15/main#g' /etc/postgres
 ### задание со сзвездочкой
 раздел с каталогом кластера переключить от ВМ ubuntu к ВМ centos, запустить кластер и увидеть имеющиеся в СУБД БД и записи
 
-* в centos при установке "ванильного" postgreslq 15 создался каталог /var/lib/pgsql/15/data
-* инициализирую кластер с настройками по-умолчанию командой
+* в centos при установке "ванильного" postgreslq 15 создался каталог /var/lib/pgsql/15/data - не нужен
+* инициализирую кластер с настройками по-умолчанию командой тоже не нужно для запуска СУБД
 
-sudo -u postgres /usr/pgsql-15/bin/initdb -D /var/lib/pgsql/15/data/
+`sudo -u postgres /usr/pgsql-15/bin/initdb -D /var/lib/pgsql/15/data/`
 
-удалил содерджимое проинициализировавшегося каталога
-rm -rf /var/lib/pgsql/15/data/*
+* удалил содерджимое проинициализировавшегося каталога
+`rm -rf /var/lib/pgsql/15/data/*`
 
+* в ВМ ubuntu добавил локаль, которая сущесвтует в centos
 
-в ВМ ubuntu в файле /etc/fstab закомментировал строку монтирования диска, выклчюил ВМ ubuntu, отключил диск от ВМ
-ВМ centos выключил, подключил диск с кластером postgresql 15, включил ВМ
+```
+ sudo locale-gen ru_RU.utf8
+ reboot postgresql
+```
+* конфиг файлы кластера 
+```
+pg_hba.cong
+posgresql.conf
+```
+из каталога 
+`/etc/postgres/15/main`
+
+скопировал в каталог `/var/lib/pg_ext_10/settings`
+
+* в ВМ ubuntu в файле `/etc/fstab` закомментировал строку монтирования диска, выклчюил ВМ ubuntu, отключил диск от ВМ
+* ВМ centos выключил, подключил диск с кластером postgresql 15, включил ВМ
+
+```
+ lsblk -fs
+ 
+ sdd1        ext4              2fcb8a2d-12f4-4e4c-b822-893909f953ab
+ └─sdd
+```
+по имени устройства смонтировал диск в одноименную папку
+`mount /dev/sdd1 /var/lib/pg_ext_10`
+
+* поменял владельца подкаталогов и файлов на пользователя centos
+`chown postgres:postgres -R  /var/lib/pgsql/15/data/`
+
+* из каталога settings в каталог кластера скопировал два конфиг файла, которых достаточно для запуска кластера
+* изменил локаль с C.UTF-8 на ru_RU.UTF-8 в конфиг файле 
+
+* запустил службу командой
+`sudo -u postgres /usr/pgsql-15/bin/pg_ctl  -D /var/lib/pg_ext_10/15/main/ stop`
+
+* были предупреждения, избавился командой  для каждой из БД
+ ALTER DATABASE template1 REFRESH COLLATION VERSION \gx
+
+* базы данных существуют, данные в таблицах есть
+
 
 
 
