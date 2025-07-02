@@ -253,12 +253,25 @@ posgresql.conf
 
 * из каталога settings в каталог кластера скопировал два конфиг файла, которых достаточно для запуска кластера
 * изменил локаль с C.UTF-8 на ru_RU.UTF-8 в конфиг файле 
+```
+sed -i 's/C.UTF-8/ru_RU.UTF-8/g' /var/lib/pg_ext_10/15/main/postgresql.conf
+```
+
+* отключил ssl, т.к. не принес сертификаты Ubuntu
+```
+sed -i 's/ssl = on/#ssl = on/g' /var/lib/pg_ext_10/15/main/postgresql.conf
+```
+
 
 * запустил службу командой
-`sudo -u postgres /usr/pgsql-15/bin/pg_ctl  -D /var/lib/pg_ext_10/15/main/ stop`
+```
+sudo -u postgres /usr/pgsql-15/bin/pg_ctl  -D /var/lib/pg_ext_10/15/main/ stop
+```
 
 * были предупреждения, избавился командой  для каждой из БД
+```
  ALTER DATABASE template1 REFRESH COLLATION VERSION \gx
+ ```
 
 * базы данных существуют, данные в таблицах есть
 
