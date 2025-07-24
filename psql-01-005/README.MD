@@ -123,6 +123,47 @@ testdb=# GRANT SELECT on ALL TABLES IN SCHEMA testnm TO readonly \g
 ```
 
 
+создан пользователь и назначена роль командами
+```
+testdb=# CREATE USER testread WITH PASSWORD 'test123' \g
+testdb=# GRANT readonly TO testread  \g
+
+```
+
+подключиться к БД testread пользователем testdb невозможно, т.к. в файле pg_hba.conf нет разрешающего правила\
+командой в операционной системе открыл на редактирование файл
+```
+sudo mcedit /etc/postgresql/15/task_01_005/pg_hba.conf
+```
+
+добавил строку, разрешение подключения пользователя readonly к БД test с паролем
+```
+local   testdb          readonly                                md5
+
+```
+
+перезапуск кластера и возможно подключиться к БД командой с явным указанием необходимости ввода пароля, имени БД, к какой подключаться 
+sudo pg_ctlcluster 15 task_01_005 restart
+psql -U testread -p 5434 -W -d testdb -h 127.0.0.1
+
+```
+
+
+выполнить ```   SELECT * FROM t1 \g  ``` т.к. таблица testdb создана по-умолчанию в схеме public, на эту схему у роли readonly прав доступа нет
+
+отключиться от СУБД пользователем testread, подключиться пользователем postgres, удалить таблицу t1, создать таблицу в нужной схеме
+```
+\q
+ub-cent@sad:~$ sudo -u postgres psql -p 5434
+postgres=# \c testdb
+testdb=# DROP TABLE t1 \g
+testdb=#
+
+
+
+
+
+
 
 
 
