@@ -66,16 +66,32 @@ start_conf = 'manual'
 initdb_options = '--encoding=UTF8 --data-checksums --icu-locale=ru --locale-provider=icu  --lc-collate=ru_RU.UTF-8  --lc-ctype=ru_RU.UTF-8'
 ```
 
+создался необходимый кластер
+```
+Ver Cluster     Port Status Owner    Data directory                    Log file
+15  task_01_005 5434 down   postgres /var/lib/pg_ext_10/15/task_01_005 /var/log/postgresql/postgresql-15-task_01_005.log
+```
 
+запуск кластера
+```
+sudo pg_ctlcluster 15 task_01_005
+```
+
+подклчюение к СУБД
+```
 sudo -u postgres psql -p 5434
+```
 
-создал еще одну БД (номер месяца+номерДЗ)
+
+создал БД
 ``
-CREATE DATABASE otus01004\gx
+CREATE DATABASE testdb\gx
 ``
 *переключился на созданную БД и создал таблицу
 ```
-\c otus01004 \gx
+\c tesdb \gx
+
+
 otus01004=# CREATE TABLE some_talbe (some_columnt text)\gx
 otus01004=# \d+
 List of relations
