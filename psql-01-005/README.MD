@@ -92,7 +92,40 @@ CREATE DATABASE testdb\gx
 \c tesdb \gx
 
 
-otus01004=# CREATE TABLE some_talbe (some_columnt text)\gx
+создал схему командой
+```
+CREATE SCHEMA testnm \g
+```
+
+создал таблицу t1 с одной колонкой c1 типа integer
+```
+testdb=# CREATE TABLE t1 (c1 integer)\g
+```
+
+вставлена строка со значением c1=1
+```
+testdb=# INSERT INTO t1 values (1)\g
+
+```
+
+создана роль командой
+```
+testdb=# CREATE ROLE readonly \g
+
+```
+
+роли readonly выдано право подключаться к БД, использвать схему и право выполнять SELECT последовательностью команд
+```
+testdb=# GRANT CONNECT on DATABASE testdb to readonly \g
+testdb=# GRANT USAGE ON SCHEMA testnm TO readonly \g
+testdb=# GRANT SELECT on ALL TABLES IN SCHEMA testnm TO readonly \g
+
+```
+
+
+
+
+
 otus01004=# \d+
 List of relations
 Schema |    Name    | Type  |  Owner   | Persistence | Access method |    Size    | Description
