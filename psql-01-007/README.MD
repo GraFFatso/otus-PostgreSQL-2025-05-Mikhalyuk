@@ -177,7 +177,7 @@ number of failed transactions: 0 (0.000%)
 latency average = 437.245 ms
 latency stddev = 273.106 ms
 initial connection time = 51.866 ms
-tps = 18.248992 (without initial connection time)
+tps = **18.248992** (without initial connection time)
 
 
 ```
