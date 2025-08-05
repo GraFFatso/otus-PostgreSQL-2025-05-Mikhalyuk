@@ -139,7 +139,7 @@ work_mem = 6553kB
 min_wal_size = 4GB
 max_wal_size = 16GB' | sudo tee /etc/postgresql/15/task_01_007/conf.d/123.conf
 sudo chown postgres:postgres /etc/postgresql/15/task_01_007/conf.d/123.conf
-
+```
 
 * перезапуск кластера, проверка, что параметры применились 
 
