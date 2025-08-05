@@ -94,29 +94,7 @@ host all all 127.0.0.1 trust
 ```
 результат выполнения команды:
 ```
-starting vacuum...end.
-progress: 6.0 s, 21.8 tps, lat 350.061 ms stddev 220.969, 0 failed
-progress: 12.0 s, 15.5 tps, lat 511.660 ms stddev 256.096, 0 failed
-progress: 18.0 s, 16.5 tps, lat 481.497 ms stddev 267.272, 0 failed
-progress: 24.0 s, 15.0 tps, lat 540.619 ms stddev 339.608, 0 failed
-progress: 30.0 s, 13.2 tps, lat 578.246 ms stddev 432.171, 0 failed
-progress: 36.0 s, 16.3 tps, lat 506.958 ms stddev 311.169, 0 failed
-progress: 42.0 s, 18.3 tps, lat 441.826 ms stddev 241.554, 0 failed
-progress: 48.0 s, 15.2 tps, lat 525.453 ms stddev 277.492, 0 failed
-progress: 54.0 s, 22.8 tps, lat 356.833 ms stddev 215.767, 0 failed
-progress: 60.0 s, 24.2 tps, lat 328.966 ms stddev 202.329, 0 failed
-transaction type: <builtin: TPC-B (sort of)>
-scaling factor: 1
-query mode: simple
-number of clients: 8
-number of threads: 1
-maximum number of tries: 1
-duration: 60 s
-number of transactions actually processed: 1081
-number of failed transactions: 0 (0.000%)
-latency average = 444.678 ms
-latency stddev = 285.469 ms
-initial connection time = 54.350 ms
+...initial connection time = 54.350 ms
 tps = 17.949766 (without initial connection time)
 
 ```
@@ -154,7 +132,7 @@ postgres=# SHOW work_mem \g
 * повторный запуск теста с примененными настроками дал такой результат:
 
 ```
-starting vacuum...end.
+...
 initial connection time = 51.866 ms
 tps = 18.248992 (without initial connection time)
 ```
