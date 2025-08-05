@@ -266,10 +266,82 @@ SELECT pg_relation_size('table_task')\g
  ------------------
          398630912
 ```
-размер файла получился почти 400мб, т.к. autovacuum не удалял мертвые строки в таблице, то они продолжают существовать жо тех пор, пока vacuum либо autovacuum не удалят "мертвые строки"
+размер файла получился почти 400мб, т.к. autovacuum не удалял мертвые строки в таблице, то они продолжают существовать жо тех пор, пока vacuum либо autovacuum не удалят "мертвые строки"\
 
-Не забудьте включить автовакуум)
-####################################################################################
+что подтверждается запросом(время запроса МСК 21:41):
+```
+ SELECT *  FROM pg_stat_user_tables WHERE relname = 'table_task' \gx
+ -[ RECORD 1 ]-------+------------------------------
+ relid               | 16618
+ schemaname          | public
+ relname             | table_task
+ seq_scan            | 20
+ seq_tup_read        | 17000030
+ idx_scan            |
+ idx_tup_fetch       |
+ n_tup_ins           | 1000000
+ n_tup_upd           | 17000000
+ n_tup_del           | 0
+ n_tup_hot_upd       | 4603
+ n_live_tup          | 1000000
+ n_dead_tup          | 9997232
+ n_mod_since_analyze | 10000000
+ n_ins_since_vacuum  | 0
+ last_vacuum         |
+ last_autovacuum     | 2025-08-05 18:27:08.910845+00
+ last_analyze        |
+ last_autoanalyze    | 2025-08-05 18:27:09.209824+00
+ vacuum_count        | 0
+ autovacuum_count    | 7
+ analyze_count       | 0
+ autoanalyze_count   | 7
+ ```
+ колво мертвых строк около 10 млн, через пару минут обноулилось значение n_dead_tuple и установилось значение предыдущего срабатывания autovacuum 
 
 
 
+* Не забудьте включить автовакуум)
+не забыл )
+```
+ALTER TABLE table_task SET (autovacuum_enabled=true)\g
+```
+
+
+
+
+
+
+* со звездочкой "Написать анонимную процедуру, в которой в цикле 10 раз обновятся все строчки в искомой таблице."
+
+команда создания процедуры
+```
+
+CREATE OR REPLACE PROCEDURE update_task()
+LANGUAGE plpgsql
+AS $func$
+
+BEGIN
+ DO $cycle$
+    BEGIN FOR i IN 1..10 LOOP
+	    RAISE NOTICE 'Start Update of table %', i;
+	    	UPDATE table_task SET test_column=floor(random()*i);
+	    		RAISE NOTICE 'Update % of table is finished', i;
+	    		
+	    		    END LOOP;
+	    		     END $cycle$;
+	    		       COMMIT;
+	    		       END;
+	    		       $func$;
+```
+
+вызов процедуры и результаты
+```
+CALL update_task ();
+NOTICE:  Start Update of table 1
+NOTICE:  Update 1 of table is finished
+NOTICE:  Start Update of table 2
+NOTICE:  Update 2 of table is finished
+NOTICE:  Start Update of table 3
+NOTICE:  Update 3 of table is finished
+...
+```
