@@ -1,0 +1,245 @@
+## Занятие 7. MVCC, vacuum и autovacuum
+### Преподаватель Виктор Коробков
+### Проверяющий ДЗ Игорь Тоескин
+
+## подготовительные работы, вводные
+
+использую "стенд" с hyper-v, ~~i3-6100 +40gb RAM~~\
+конфигурация гипервизора изменена на i7-3770, 30GB RAM\
+создаю ВМ по необходимости\
+к различным хостам подключаюсь через mobaxterm
+
+### Подготовтительные работы
+* для ВМ выделил 2 ядра, 8гб ОЗУ, статический MAC, чтобы не сбивался IP
+
+* установил ubuntu-22.05.5 live -server без GUI
+
+* установка доп. необходимго ПО в ubuntu
+
+```sudo apt update && sudo apt upgrade```\
+```sudo apt install mc openssh-server openssh-client unzip wget sysstat whiptail```
+
+команда _iostat_ в пакете _sysstat_\
+_whiptail_ необходим для диалогов установки postgresql\
+команда _netstat_ в пакете _net-tools_\
+установилось новое ядро Linux 5.15.0
+
+* в ВМ ubuntu 22.04 установлены пакеты 15, 16 и 17 версий postgresql
+
+### Цель занятия
+
+понять работу механизма многоверсионности в POstgreSQL\
+Знать и уметь использовать vacuum и autovacuum;\
+разобраться, есть ли проблемы с наличием или отсутствием autovacuum.
+
+
+### Выполнение ДЗ
+
+
+
+из предудущего ДЗ используется ubuntu,\
+
+
+*  согласно пошаговой интсрукции создаю новый кластер командой (имя кластера содержит месяц занятий и номер занятия)
+```
+sudo pg_createcluster 15 task_01_007
+```
+т.к.  в предыдущих заданиях я задал параметры, с которыми будет инициализироватьсяновый кластер через содержимое файла
+```
+/etc/postgresql-common/createcluster.d/001.conf
+```
+файл "принимается в работу" согласно параметров по-умолчанию в файле
+```
+cat /etc/postgresql-common/createcluster.conf
+```
+содержимое настроечного файла
+```
+start_conf = 'manual'
+initdb_options = '--encoding=UTF8 --data-checksums --icu-locale=ru --locale-provider=icu  --lc-collate=ru_RU.UTF-8  --lc-ctype=ru_RU.UTF-8'
+```
+
+создался необходимый кластер
+```
+Ver Cluster     Port Status Owner    Data directory                    Log file
+15  task_01_007 5436 down   postgres /var/lib/pg_ext_10/15/task_01_007 /var/log/postgresql/postgresql-15-task_01_007.log
+```
+
+запуск кластера
+```
+sudo pg_ctlcluster 15 task_01_007
+```
+
+* подключение к СУБД
+```
+sudo -u postgres psql -p 5436
+```
+
+* создана БД
+``
+CREATE DATABASE task_01_007 \g
+
+* инициализировать pgbench
+
+```
+pgbench -i task_01_007 -p 5436 -U postgres -h 127.0.0.1
+done in 2.06 s (drop tables 0.00 s, create tables 0.22 s, client-side generate 0.73 s, vacuum 0.60 s, primary keys 0.51 s).
+
+```
+т.к. создаНа БД, то инициализирую тест для созданной БД
+так же задаю порт необходимого кластера, имя пользователя которым буду подключаться к БД кластера
+предварительно в pg_hba.conf добавив строку
+```
+host all all 127.0.0.1 trust
+```
+* pfgeoty запущен тест командой
+```
+ pgbench -c 8 -P 6 -T 60   -p 5436 -U postgres -h 127.0.0.1 task_01_007
+ 
+```
+результат выполнения команды:
+```
+starting vacuum...end.
+progress: 6.0 s, 21.8 tps, lat 350.061 ms stddev 220.969, 0 failed
+progress: 12.0 s, 15.5 tps, lat 511.660 ms stddev 256.096, 0 failed
+progress: 18.0 s, 16.5 tps, lat 481.497 ms stddev 267.272, 0 failed
+progress: 24.0 s, 15.0 tps, lat 540.619 ms stddev 339.608, 0 failed
+progress: 30.0 s, 13.2 tps, lat 578.246 ms stddev 432.171, 0 failed
+progress: 36.0 s, 16.3 tps, lat 506.958 ms stddev 311.169, 0 failed
+progress: 42.0 s, 18.3 tps, lat 441.826 ms stddev 241.554, 0 failed
+progress: 48.0 s, 15.2 tps, lat 525.453 ms stddev 277.492, 0 failed
+progress: 54.0 s, 22.8 tps, lat 356.833 ms stddev 215.767, 0 failed
+progress: 60.0 s, 24.2 tps, lat 328.966 ms stddev 202.329, 0 failed
+transaction type: <builtin: TPC-B (sort of)>
+scaling factor: 1
+query mode: simple
+number of clients: 8
+number of threads: 1
+maximum number of tries: 1
+duration: 60 s
+number of transactions actually processed: 1081
+number of failed transactions: 0 (0.000%)
+latency average = 444.678 ms
+latency stddev = 285.469 ms
+initial connection time = 54.350 ms
+tps = 17.949766 (without initial connection time)
+
+```
+
+####################################################################################
+
+Применить параметры настройки PostgreSQL из прикрепленного к материалам занятия файла
+Протестировать заново
+Что изменилось и почему?
+Создать таблицу с текстовым полем и заполнить случайными или сгенерированными данным в размере 1млн строк
+Посмотреть размер файла с таблицей
+5 раз обновить все строчки и добавить к каждой строчке любой символ
+Посмотреть количество мертвых строчек в таблице и когда последний раз приходил автовакуум
+Подождать некоторое время, проверяя, пришел ли автовакуум
+5 раз обновить все строчки и добавить к каждой строчке любой символ
+Посмотреть размер файла с таблицей
+Отключить Автовакуум на конкретной таблице
+10 раз обновить все строчки и добавить к каждой строчке любой символ
+Посмотреть размер файла с таблицей
+Объясните полученный результат
+Не забудьте включить автовакуум)
+####################################################################################
+
+
+
+
+4. переключился на созданную БД
+```
+\c tesdb \g
+```
+
+5. создал схему командой
+```
+CREATE SCHEMA testnm \g
+```
+
+6. создал таблицу t1 с одной колонкой c1 типа integer
+```
+testdb=# CREATE TABLE t1 (c1 integer)\g
+```
+
+7. вставлена строка со значением c1=1
+```
+testdb=# INSERT INTO t1 values (1)\g
+
+```
+
+8. создана роль командой
+```
+testdb=# CREATE ROLE readonly \g
+
+```
+
+9. 10. 11. роли readonly выдано право подключаться к БД, использвать схему и право выполнять SELECT последовательностью команд
+```
+testdb=# GRANT CONNECT on DATABASE testdb to readonly \g
+testdb=# GRANT USAGE ON SCHEMA testnm TO readonly \g
+testdb=# GRANT SELECT on ALL TABLES IN SCHEMA testnm TO readonly \g
+
+```
+
+
+12. 13. создан пользователь и назначена роль командами
+```
+testdb=# CREATE USER testread WITH PASSWORD 'test123' \g
+testdb=# GRANT readonly TO testread  \g
+
+```
+
+14. подключиться к БД testread пользователем testdb невозможно, т.к. в файле pg_hba.conf нет разрешающего правила\
+командой в операционной системе открыл на редактирование файл
+```
+sudo mcedit /etc/postgresql/15/task_01_005/pg_hba.conf
+```
+
+добавил строку, разрешение подключения пользователя readonly к БД test с паролем
+```
+local   testdb          readonly                                md5
+```
+
+перезапуск кластера и возможно подключиться к БД командой с явным указанием необходимости ввода пароля, имени БД, к какой подключаться 
+```
+sudo pg_ctlcluster 15 task_01_005 restart
+psql -U testread -p 5434 -W -d testdb -h 127.0.0.1
+```
+
+
+15. выполнить ```SELECT * FROM t1 \g  ``` т.к. таблица testdb создана по-умолчанию в схеме public, на эту схему у роли readonly прав доступа нет
+
+16,20,22,23,24,25.  отключиться от СУБД пользователем testread, подключиться пользователем postgres, ~~удалить таблицу t1, создать таблицу в нужной схеме~~ так было написано в шпаргалке, но я изменил схему для таблицы командой
+
+```
+\q
+ub-cent@sad:~$ sudo -u postgres psql -p 5434
+postgres=# \c testdb
+testdb=# ALTER TABLE public.t1 SET SCHEMA testnm
+testdb=#\dt public.*   --пусто
+testdb=#\dt testnm.*   --отображает нашу таблицу
+```
+
+17,18,19. идей нет
+
+
+26,27. пользователем testread при попытке получить данные из таблицы t1 БД testdb так же permission denied
+
+
+выполнил повторно, т.к. таблицу ранее все-таки удалял, это новый объект
+```
+testdb=# GRANT USAGE ON SCHEMA testnm TO readonly \g
+testdb=# GRANT SELECT on ALL TABLES IN SCHEMA testnm TO readonly \g
+
+```
+после этого пользователь readonly получил значения из таблицы t1
+
+
+37,38,39,40,41,42. команда не выполнилась, т.к. согласно шпаргалки убрал право создания для схемы public для роли public
+а так же убрал все неявные права на БД testdb для роли Public
+```
+REVOKE CREATE on SCHEMA public FROM public; 
+REVOKE ALL on DATABASE testdb FROM public; 
+```
+
