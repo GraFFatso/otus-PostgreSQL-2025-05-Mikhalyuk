@@ -155,36 +155,13 @@ postgres=# SHOW work_mem \g
 
 ```
 starting vacuum...end.
-progress: 6.0 s, 23.3 tps, lat 327.903 ms stddev 248.790, 0 failed
-progress: 12.0 s, 16.5 tps, lat 484.650 ms stddev 240.128, 0 failed
-progress: 18.0 s, 16.0 tps, lat 495.572 ms stddev 262.148, 0 failed
-progress: 24.0 s, 14.5 tps, lat 540.659 ms stddev 291.640, 0 failed
-progress: 30.0 s, 16.8 tps, lat 452.927 ms stddev 248.005, 0 failed
-progress: 36.0 s, 14.2 tps, lat 592.558 ms stddev 375.150, 0 failed
-progress: 42.0 s, 16.8 tps, lat 480.807 ms stddev 276.046, 0 failed
-progress: 48.0 s, 20.2 tps, lat 408.048 ms stddev 262.348, 0 failed
-progress: 54.0 s, 24.5 tps, lat 323.355 ms stddev 192.592, 0 failed
-progress: 60.0 s, 19.2 tps, lat 399.532 ms stddev 216.052, 0 failed
-transaction type: <builtin: TPC-B (sort of)>
-scaling factor: 1
-query mode: simple
-number of clients: 8
-number of threads: 1
-maximum number of tries: 1
-duration: 60 s
-number of transactions actually processed: 1100
-number of failed transactions: 0 (0.000%)
-latency average = 437.245 ms
-latency stddev = 273.106 ms
 initial connection time = 51.866 ms
-tps = **18.248992** (without initial connection time)
-
-
+tps = 18.248992 (without initial connection time)
 ```
 
 
 
-* Что изменилось и почему?
+* **Что изменилось и почему?**\
 мало что изменилось, т.к. диск HDD и параметры random_page_cost =4 для HDD\
 проверяю, что все кластеры остановлены\
 ```
