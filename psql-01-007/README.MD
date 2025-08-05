@@ -152,7 +152,7 @@ Ver Cluster     Port Status Owner     Data directory                    Log file
 16  first       5432 down   postgres  /var/lib/postgresql/16/first      /var/log/postgresql/postgresql-16-first.log
 ```
 
-подключаю раздел к ВМ с NVME диска\
+подключаю раздел к ВМ с NVME диска.\
 вычисляю имя подключенного устройства, создаю раздел, форматирую ФС, определаю UUID форматированного раздела, временно монтирую в каталог /mnt, перемещаю все каталоги папки "15" на этот раздел, отключаю раздел и временно монтирую в каталог кластеров
 ```
 lsblk -fs
@@ -170,30 +170,13 @@ sudo mv /etc/postgresql/15/task_01_007/conf.d/123.conf /etc/postgresql/15/task_0
 получил результат:
 
 ```
-starting vacuum...end.
-progress: 6.0 s, 693.2 tps, lat 11.430 ms stddev 5.963, 0 failed
-progress: 12.0 s, 699.0 tps, lat 11.446 ms stddev 5.814, 0 failed
-progress: 18.0 s, 617.2 tps, lat 12.961 ms stddev 7.875, 0 failed
-progress: 24.0 s, 661.3 tps, lat 12.096 ms stddev 6.548, 0 failed
-progress: 30.0 s, 656.5 tps, lat 12.185 ms stddev 6.527, 0 failed
-progress: 36.0 s, 624.7 tps, lat 12.801 ms stddev 7.739, 0 failed
-progress: 42.0 s, 648.2 tps, lat 12.347 ms stddev 10.733, 0 failed
-progress: 48.0 s, 657.3 tps, lat 12.167 ms stddev 6.431, 0 failed
-progress: 54.0 s, 664.0 tps, lat 12.039 ms stddev 6.211, 0 failed
-progress: 60.0 s, 676.5 tps, lat 11.833 ms stddev 5.958, 0 failed
-transaction type: <builtin: TPC-B (sort of)>
-scaling factor: 1
-query mode: simple
-number of clients: 8
-number of threads: 1
-maximum number of tries: 1
-duration: 60 s
+...
 number of transactions actually processed: 39595
 number of failed transactions: 0 (0.000%)
 latency average = 12.114 ms
 latency stddev = 7.107 ms
 initial connection time = 50.419 ms
-tps = ~~660.230827~~ (without initial connection time)
+tps = 660.230827 (without initial connection time)
 
 ```
 
