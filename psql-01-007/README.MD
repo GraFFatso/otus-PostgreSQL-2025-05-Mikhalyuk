@@ -83,8 +83,7 @@ pgbench -i task_01_007 -p 5436 -U postgres -h 127.0.0.1
 done in 2.06 s (drop tables 0.00 s, create tables 0.22 s, client-side generate 0.73 s, vacuum 0.60 s, primary keys 0.51 s).
 ```
 т.к. создана БД, то инициализирую тест для созданной БД
-так же задаю порт необходимого кластера, имя пользователя которым буду подключаться к БД кластера
-предварительно в pg_hba.conf добавив строку
+так же задаю порт необходимого кластера, имя пользователя которым буду подключаться к БД кластера, предварительно в pg_hba.conf добавив строку
 ```
 host all all 127.0.0.1 trust
 ```
@@ -185,7 +184,64 @@ tps = 18.248992 (without initial connection time)
 
 
 
-Что изменилось и почему?
+* Что изменилось и почему?
+мало что изменилось, т.к. диск HDD и параметры random_page_cost =4 для HDD\
+проверяю, что все кластеры остановлены\
+```
+pg_lsclusters
+Ver Cluster     Port Status Owner     Data directory                    Log file
+15  main        5433 down   <unknown> /var/lib/pg_ext_10/15/main        /var/log/postgresql/postgresql-15-main.log
+15  task_01_005 5434 down   postgres  /var/lib/pg_ext_10/15/task_01_005 /var/log/postgresql/postgresql-15-task_01_005.log
+15  task_01_007 5436 down   postgres  /var/lib/pg_ext_10/15/task_01_007 /var/log/postgresql/postgresql-15-task_01_007.log
+15  task_02_006 5435 down   postgres  /var/lib/pg_ext_10/15/task_02_006 /var/log/postgresql/postgresql-15-task_02_006.log
+16  first       5432 down   postgres  /var/lib/postgresql/16/first      /var/log/postgresql/postgresql-16-first.log
+```
+
+подключаю раздел к ВМ с NVME диска\
+вычисляю имя подключенного устройства, создаю раздел, форматирую ФС, определаю UUID форматированного раздела, временно монтирую в каталог /mnt, перемещаю все каталоги папки "15" на этот раздел, отключаю раздел и временно монтирую в каталог кластеров
+```
+lsblk -fs
+sudo fdisk /dev/sdb
+sudo mount  UUID="24229417-5e72-4044-9c39-9c62eff40ecc" /mnt
+sudo mv /var/lib/pg_ext_10/15 /mnt
+sudo umount /mnt
+sudo mount  UUID="24229417-5e72-4044-9c39-9c62eff40ecc" /var/lib/pg_ext_10/
+```
+
+чтобы конфиг не применялся, переименовываю файл командой, перезапускаю кластер и повторяю тест
+```
+sudo mv /etc/postgresql/15/task_01_007/conf.d/123.conf /etc/postgresql/15/task_01_007/conf.d/124.not_use
+```
+получил результат:
+
+```
+starting vacuum...end.
+progress: 6.0 s, 693.2 tps, lat 11.430 ms stddev 5.963, 0 failed
+progress: 12.0 s, 699.0 tps, lat 11.446 ms stddev 5.814, 0 failed
+progress: 18.0 s, 617.2 tps, lat 12.961 ms stddev 7.875, 0 failed
+progress: 24.0 s, 661.3 tps, lat 12.096 ms stddev 6.548, 0 failed
+progress: 30.0 s, 656.5 tps, lat 12.185 ms stddev 6.527, 0 failed
+progress: 36.0 s, 624.7 tps, lat 12.801 ms stddev 7.739, 0 failed
+progress: 42.0 s, 648.2 tps, lat 12.347 ms stddev 10.733, 0 failed
+progress: 48.0 s, 657.3 tps, lat 12.167 ms stddev 6.431, 0 failed
+progress: 54.0 s, 664.0 tps, lat 12.039 ms stddev 6.211, 0 failed
+progress: 60.0 s, 676.5 tps, lat 11.833 ms stddev 5.958, 0 failed
+transaction type: <builtin: TPC-B (sort of)>
+scaling factor: 1
+query mode: simple
+number of clients: 8
+number of threads: 1
+maximum number of tries: 1
+duration: 60 s
+number of transactions actually processed: 39595
+number of failed transactions: 0 (0.000%)
+latency average = 12.114 ms
+latency stddev = 7.107 ms
+initial connection time = 50.419 ms
+tps = ~~660.230827~~ (without initial connection time)
+
+```
+
 
 ####################################################################################
 
