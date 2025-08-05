@@ -26,25 +26,23 @@ _whiptail_ необходим для диалогов установки postgre
 
 * в ВМ ubuntu 22.04 установлены пакеты 15, 16 и 17 версий postgresql
 
-### Цель занятия
+## Цель занятия
 
 понять работу механизма многоверсионности в POstgreSQL\
 Знать и уметь использовать vacuum и autovacuum;\
 разобраться, есть ли проблемы с наличием или отсутствием autovacuum.
 
 
-### Выполнение ДЗ
+## Выполнение ДЗ
+
+из предудущего ДЗ используется ubuntu
 
 
-
-из предудущего ДЗ используется ubuntu,\
-
-
-*  согласно пошаговой интсрукции создаю новый кластер командой (имя кластера содержит месяц занятий и номер занятия)
+*  согласно пошаговой инструкции создаю новый кластер командой (имя кластера содержит месяц занятий и номер занятия)
 ```
 sudo pg_createcluster 15 task_01_007
 ```
-т.к.  в предыдущих заданиях я задал параметры, с которыми будет инициализироватьсяновый кластер через содержимое файла
+т.к.  в предыдущих заданиях я задал параметры, с которыми будет инициализироваться новый кластер через содержимое файла
 ```
 /etc/postgresql-common/createcluster.d/001.conf
 ```
@@ -75,23 +73,22 @@ sudo -u postgres psql -p 5436
 ```
 
 * создана БД
-``
+```
 CREATE DATABASE task_01_007 \g
-
+```
 * инициализировать pgbench
 
 ```
 pgbench -i task_01_007 -p 5436 -U postgres -h 127.0.0.1
 done in 2.06 s (drop tables 0.00 s, create tables 0.22 s, client-side generate 0.73 s, vacuum 0.60 s, primary keys 0.51 s).
-
 ```
-т.к. создаНа БД, то инициализирую тест для созданной БД
+т.к. создана БД, то инициализирую тест для созданной БД
 так же задаю порт необходимого кластера, имя пользователя которым буду подключаться к БД кластера
 предварительно в pg_hba.conf добавив строку
 ```
 host all all 127.0.0.1 trust
 ```
-* pfgeoty запущен тест командой
+* тест запущен тест командой
 ```
  pgbench -c 8 -P 6 -T 60   -p 5436 -U postgres -h 127.0.0.1 task_01_007
  
@@ -125,11 +122,73 @@ tps = 17.949766 (without initial connection time)
 
 ```
 
+* Применить параметры настройки PostgreSQL из прикрепленного к материалам занятия файла
+командой создаю конфиг файл, который применится при запуске кластера
+так же меняю владельца этого конфиг файла
+
+```
+sudo echo 'max_connections = 40
+shared_buffers = 1GB
+effective_cache_size = 3GB
+maintenance_work_mem = 512MB
+checkpoint_completion_target = 0.9
+wal_buffers = 16MB
+default_statistics_target = 500
+random_page_cost = 4
+effective_io_concurrency = 2
+work_mem = 6553kB
+min_wal_size = 4GB
+max_wal_size = 16GB' | sudo tee /etc/postgresql/15/task_01_007/conf.d/123.conf
+sudo chown postgres:postgres /etc/postgresql/15/task_01_007/conf.d/123.conf
+
+
+* перезапуск кластера, проверка, что параметры применились 
+
+```
+postgres=# SHOW work_mem \g
+ work_mem
+ ----------
+  6553kB
+  (1 row)
+```
+
+* повторный запуск теста с примененными настроками дал такой результат:
+
+```
+starting vacuum...end.
+progress: 6.0 s, 23.3 tps, lat 327.903 ms stddev 248.790, 0 failed
+progress: 12.0 s, 16.5 tps, lat 484.650 ms stddev 240.128, 0 failed
+progress: 18.0 s, 16.0 tps, lat 495.572 ms stddev 262.148, 0 failed
+progress: 24.0 s, 14.5 tps, lat 540.659 ms stddev 291.640, 0 failed
+progress: 30.0 s, 16.8 tps, lat 452.927 ms stddev 248.005, 0 failed
+progress: 36.0 s, 14.2 tps, lat 592.558 ms stddev 375.150, 0 failed
+progress: 42.0 s, 16.8 tps, lat 480.807 ms stddev 276.046, 0 failed
+progress: 48.0 s, 20.2 tps, lat 408.048 ms stddev 262.348, 0 failed
+progress: 54.0 s, 24.5 tps, lat 323.355 ms stddev 192.592, 0 failed
+progress: 60.0 s, 19.2 tps, lat 399.532 ms stddev 216.052, 0 failed
+transaction type: <builtin: TPC-B (sort of)>
+scaling factor: 1
+query mode: simple
+number of clients: 8
+number of threads: 1
+maximum number of tries: 1
+duration: 60 s
+number of transactions actually processed: 1100
+number of failed transactions: 0 (0.000%)
+latency average = 437.245 ms
+latency stddev = 273.106 ms
+initial connection time = 51.866 ms
+tps = 18.248992 (without initial connection time)
+
+
+```
+
+
+
+Что изменилось и почему?
+
 ####################################################################################
 
-Применить параметры настройки PostgreSQL из прикрепленного к материалам занятия файла
-Протестировать заново
-Что изменилось и почему?
 Создать таблицу с текстовым полем и заполнить случайными или сгенерированными данным в размере 1млн строк
 Посмотреть размер файла с таблицей
 5 раз обновить все строчки и добавить к каждой строчке любой символ
